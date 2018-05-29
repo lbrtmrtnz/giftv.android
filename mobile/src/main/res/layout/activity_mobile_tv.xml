@@ -1,0 +1,110 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context="com.icenerd.giftv.MobileTVActivity">
+
+    <FrameLayout android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/horizontal_2x"
+        android:paddingRight="@dimen/horizontal_2x"
+        android:paddingTop="@dimen/horizontal_2x"
+        android:paddingBottom="@dimen/horizontal_2x"
+        android:layout_gravity="center">
+        <android.support.v7.widget.CardView android:id="@+id/container_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+            <LinearLayout android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/horizontal_2x"
+                android:paddingRight="@dimen/horizontal_2x"
+                android:paddingTop="@dimen/vertical_2x"
+                android:paddingBottom="@dimen/vertical_2x">
+                <LinearLayout android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/vertical_small"
+                    android:gravity="center_vertical">
+                    <TextView android:id="@+id/text_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="@dimen/horizontal_2x"
+                        android:textColor="@color/colorAccent"
+                        android:textSize="@dimen/text_large"
+                        android:textStyle="bold"
+                        android:text="@string/tv_wait_title"
+                        android:layout_marginEnd="@dimen/horizontal_2x" />
+                    <LinearLayout android:orientation="vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                        <LinearLayout android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical">
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="@dimen/horizontal"
+                                android:layout_marginRight="@dimen/horizontal"
+                                android:src="@drawable/ic_live_tv_black" />
+                            <TextView android:id="@+id/text_tv_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorAccent"
+                                android:textSize="@dimen/text_medium"
+                                android:text="@string/activity_mobile_tv_name"/>
+                        </LinearLayout>
+                        <LinearLayout android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical">
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="@dimen/horizontal"
+                                android:layout_marginRight="@dimen/horizontal"
+                                android:src="@drawable/ic_router" />
+                            <TextView android:id="@+id/text_ssid"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorAccent"
+                                android:textSize="@dimen/text_medium"
+                                android:text="@string/tv_ssid_not_found"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+                <TextView android:id="@+id/text_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/text_medium"
+                    android:text="@string/tv_wait"/>
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+    </FrameLayout>
+
+    <FrameLayout android:id="@+id/frame_gif"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
+        android:visibility="invisible">
+
+        <pl.droidsonroids.gif.GifImageView
+            android:id="@+id/gif"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="false"/>
+
+    </FrameLayout>
+
+</FrameLayout>

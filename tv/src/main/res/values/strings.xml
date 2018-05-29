@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">GIFTV</string>
+
+    <string name="tv_wait">Download GIFTV on a mobile device to send this GIFTV some GIFs!</string>
+    <string name="tv_setup">This TV will collect GIFs from users on the same Wifi network.</string>
+    <string name="tv_wait_title">WAITING FOR GIFS</string>
+    <string name="tv_ssid_not_found">Please connect this device to a WiFi network</string>
+    <string name="setup_giftv">Setup GIFTV</string>
+    <string name="activity_setup_hint_name">give it a clever name!</string>
+    <string name="action_generate_random_name">RANDOM</string>
+    <string name="activity_setup_name">Name</string>
+    <string name="action_start">Start GIFTV</string>
+    <string name="activity_mobile_tv_name">TV Name</string>
+
+    <string-array name="omp_array">
+        <item>gyar</item>
+        <item>manar</item>
+        <item>gnar</item>
+        <item>chk</item>
+        <item>dot</item>
+        <item>minot</item>
+        <item>tot</item>
+        <item>ziz</item>
+        <item>glot</item>
+        <item>yot</item>
+        <item>pul</item>
+        <item>mol</item>
+    </string-array>
+</resources>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/vertical_small"
+    android:id="@+id/frame_container_gif_item">
+    <RelativeLayout android:id="@+id/container_gif_item"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView android:id="@+id/placeholder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/placeholder_gif"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"/>
+
+        <com.android.volley.toolbox.NetworkImageView android:id="@+id/giphy_item_net_img"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignLeft="@id/placeholder"
+            android:layout_alignRight="@id/placeholder"
+            android:layout_alignTop="@id/placeholder"
+            android:layout_alignBottom="@id/placeholder"
+            android:layout_alignStart="@id/placeholder"
+            android:layout_alignEnd="@id/placeholder" />
+
+        <pl.droidsonroids.gif.GifImageView android:id="@+id/giphy_item_gif"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignLeft="@id/placeholder"
+            android:layout_alignRight="@id/placeholder"
+            android:layout_alignTop="@id/placeholder"
+            android:layout_alignBottom="@id/placeholder"
+            android:layout_alignStart="@id/placeholder"
+            android:layout_alignEnd="@id/placeholder" />
+
+        <ProgressBar android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:indeterminate="true"
+            android:visibility="invisible"/>
+
+    </RelativeLayout>
+</FrameLayout>

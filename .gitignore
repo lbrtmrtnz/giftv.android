@@ -1,0 +1,17 @@
+android.*.jks
+android.*.keyring
+gradle
+gradle.properties
+gradlew.bat
+gradlew
+*.iml
+.DS_Store
+.gradle
+.idea
+/.idea/workspace.xml
+/.idea/libraries
+/build
+/captures
+/local.properties
+/mobile/release
+/tv/release

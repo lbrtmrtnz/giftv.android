@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.icenerd.khala.MainActivity">
+    <item
+        android:id="@+id/action_local_activity"
+        android:icon="@drawable/ic_live_tv"
+        android:title="@string/menu_home_create_giftv"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_about"
+        android:icon="@drawable/ic_help_outline"
+        android:title="@string/menu_home_about"
+        app:showAsAction="always" />
+</menu>

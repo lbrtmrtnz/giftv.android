@@ -1,0 +1,7 @@
+network_service_secret=eXFjcGN4Yjl6NWZnN3R3ZXZqdjhoMnJjZzkxMGtmMmc=
+api_giphy_key=dc6zaTOxFJmzC
+
+storeFile=android.giftv.jks
+storePassword=yourstorepassword
+keyAlias=com.icenerd.giftv
+keyPassword=yourkeypassword

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/horizontal_2x"
+        android:paddingRight="@dimen/horizontal_2x"
+        android:paddingTop="@dimen/vertical_2x"
+        android:paddingBottom="@dimen/vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
+            android:text="@string/dialog_send_channel_title"/>
+    </FrameLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/navigation_drawer_width"
+        android:background="@android:color/darker_gray">
+
+        <ProgressBar android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:indeterminateTint="@color/colorAccent"
+            tools:targetApi="lollipop" />
+
+        <android.support.v7.widget.RecyclerView android:id="@+id/recyclerview"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/vertical_2x"
+        android:gravity="end">
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/horizontal_small"
+            android:paddingRight="@dimen/horizontal_small"
+            android:paddingTop="@dimen/vertical_small"
+            android:paddingBottom="@dimen/vertical_small">
+            <Button android:id="@+id/action_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:textColor="@color/colorAccent"
+                android:text="@string/action_cancel"/>
+        </FrameLayout>
+    </LinearLayout>
+
+</LinearLayout>
