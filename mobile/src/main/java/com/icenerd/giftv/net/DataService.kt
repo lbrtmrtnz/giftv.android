@@ -36,14 +36,14 @@ import javax.crypto.spec.SecretKeySpec
 
 class DataService : JobIntentService() {
     companion object {
-        private val TAG = "DataService"
+        private const val TAG = "DataService"
 
-        val ACTION_IDENTIFY = "action_identify"
-        val ACTION_SEND = "action_send"
-        val ACTION_LOST = "action_lost"
+        const val ACTION_IDENTIFY = "action_identify"
+        const val ACTION_SEND = "action_send"
+        const val ACTION_LOST = "action_lost"
 
-        val UPDATE_SERVICE_INFO = "update_service_info"
-        val UPDATE_ACTION_SEND = "update_action_send"
+        const val UPDATE_SERVICE_INFO = "update_service_info"
+        const val UPDATE_ACTION_SEND = "update_action_send"
 
         private val JOB_ID = Random().nextInt()
         @JvmStatic fun enqueueWork(context: Context, work: Intent) {
@@ -51,18 +51,18 @@ class DataService : JobIntentService() {
         }
     }
 
-    private var mSecretKey: SecretKeySpec? = null
-    private var mCipher: Cipher? = null
+    private var secretKey: SecretKeySpec? = null
+    private var cipher: Cipher? = null
 
     override fun onHandleWork(intent: Intent) {
-        if (mSecretKey == null) {
-            mSecretKey = SecretKeySpec(Base64.decode(getString(R.string.network_service_secret), Base64.NO_CLOSE or Base64.NO_WRAP), "AES")
+        if (secretKey == null) {
+            secretKey = SecretKeySpec(Base64.decode(getString(R.string.network_service_secret), Base64.NO_CLOSE or Base64.NO_WRAP), "AES")
             try {
-                mCipher = Cipher.getInstance("AES")
+                cipher = Cipher.getInstance("AES")
             } catch (err: NoSuchAlgorithmException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             } catch (err: NoSuchPaddingException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             }
 
         }
@@ -87,7 +87,7 @@ class DataService : JobIntentService() {
                 TCP_lost(name)
             }
         } catch (err: Exception) {
-            err.printStackTrace()
+            if (BuildConfig.DEBUG) err.printStackTrace()
         }
 
     }
@@ -102,26 +102,26 @@ class DataService : JobIntentService() {
             val incoming = BufferedReader(InputStreamReader(socket.getInputStream()))
 
             try {
-                if (mCipher != null) {
-                    mCipher!!.init(Cipher.ENCRYPT_MODE, mSecretKey)
+                if (cipher != null) {
+                    cipher!!.init(Cipher.ENCRYPT_MODE, secretKey)
 
                     if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_IDENTIFY")
-                    outgoing.println(Base64.encodeToString(mCipher!!.doFinal(Server.SIGNAL_IDENTIFY.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                    outgoing.println(Base64.encodeToString(cipher!!.doFinal(Server.SIGNAL_IDENTIFY.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
 
-                    val signal_identify = String.format("{\"name\":\"%s\",\"host\":\"%s\",\"port\":%s}", name, host, port)
-                    if (BuildConfig.DEBUG) Log.d("SIGNAL_IDENTIFY", signal_identify)
-                    outgoing.println(Base64.encodeToString(mCipher!!.doFinal(signal_identify.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                    val sigIdentify = "{\"name\":\"$name\",\"host\":\"$host\",\"port\":$port}"
+                    if (BuildConfig.DEBUG) Log.d("SIGNAL_IDENTIFY", sigIdentify)
+                    outgoing.println(Base64.encodeToString(cipher!!.doFinal(sigIdentify.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
 
-                    outgoing.println(Base64.encodeToString(mCipher!!.doFinal(Server.SIGNAL_CLOSE.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                    outgoing.println(Base64.encodeToString(cipher!!.doFinal(Server.SIGNAL_CLOSE.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
                     if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_CLOSE sent")
 
                 }
             } catch (err: BadPaddingException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             } catch (err: IllegalBlockSizeException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             } catch (err: InvalidKeyException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             }
 
 
@@ -129,17 +129,17 @@ class DataService : JobIntentService() {
             while (!data.isEmpty()) {
 
                 try {
-                    if (mCipher != null) {
-                        mCipher!!.init(Cipher.DECRYPT_MODE, mSecretKey)
-                        data = String(mCipher!!.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
+                    if (cipher != null) {
+                        cipher?.init(Cipher.DECRYPT_MODE, secretKey)
+                        data = String(cipher!!.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
                         if (BuildConfig.DEBUG) Log.d(TAG, data)
                     }
                 } catch (err: BadPaddingException) {
-                    err.printStackTrace()
+                    if (BuildConfig.DEBUG) err.printStackTrace()
                 } catch (err: IllegalBlockSizeException) {
-                    err.printStackTrace()
+                    if (BuildConfig.DEBUG) err.printStackTrace()
                 } catch (err: InvalidKeyException) {
-                    err.printStackTrace()
+                    if (BuildConfig.DEBUG) err.printStackTrace()
                 }
 
                 if (data.equals(Server.SIGNAL_CLOSE)) {
@@ -152,9 +152,9 @@ class DataService : JobIntentService() {
                     if (!data.isEmpty()) {
 
                         try {
-                            if (mCipher != null) {
-                                mCipher!!.init(Cipher.DECRYPT_MODE, mSecretKey)
-                                data = String(mCipher!!.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
+                            if (cipher != null) {
+                                cipher!!.init(Cipher.DECRYPT_MODE, secretKey)
+                                data = String(cipher!!.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
                                 if (BuildConfig.DEBUG) Log.d("SIGNAL_IDENTIFY", data)
                             }
                         } catch (err: BadPaddingException) {
@@ -174,16 +174,16 @@ class DataService : JobIntentService() {
             if (BuildConfig.DEBUG) Log.d(TAG, "TCP_identify success")
 
         } catch (err: IOException) {
-            err.printStackTrace()
+            if (BuildConfig.DEBUG) err.printStackTrace()
         } catch (err: JSONException) {
-            err.printStackTrace()
+            if (BuildConfig.DEBUG) err.printStackTrace()
         } finally {
             if (socket != null && !socket.isClosed) {
                 try {
                     socket.close()
                     if (BuildConfig.DEBUG) Log.d(TAG, "Socket closed")
                 } catch (err: IOException) {
-                    err.printStackTrace()
+                    if (BuildConfig.DEBUG) err.printStackTrace()
                 }
 
             }
@@ -203,41 +203,41 @@ class DataService : JobIntentService() {
             val incoming = BufferedReader(InputStreamReader(socket.getInputStream()))
 
             try {
-                if (mCipher != null) {
-                    mCipher!!.init(Cipher.ENCRYPT_MODE, mSecretKey)
+                if (cipher != null) {
+                    cipher!!.init(Cipher.ENCRYPT_MODE, secretKey)
 
-                    outgoing.println(Base64.encodeToString(mCipher!!.doFinal(Server.SIGNAL_JSON.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                    outgoing.println(Base64.encodeToString(cipher!!.doFinal(Server.SIGNAL_JSON.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
                     if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_JSON sent")
 
-                    outgoing.println(Base64.encodeToString(mCipher!!.doFinal(jsonString.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                    outgoing.println(Base64.encodeToString(cipher!!.doFinal(jsonString.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
                     if (BuildConfig.DEBUG) Log.d(TAG, "jsonString sent")
 
-                    outgoing.println(Base64.encodeToString(mCipher!!.doFinal(Server.SIGNAL_CLOSE.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                    outgoing.println(Base64.encodeToString(cipher!!.doFinal(Server.SIGNAL_CLOSE.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
                     if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_CLOSE sent")
                 }
             } catch (err: BadPaddingException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             } catch (err: IllegalBlockSizeException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             } catch (err: InvalidKeyException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             }
 
             var data: String = incoming.readLine()
             while (!data.isEmpty()) {
 
                 try {
-                    if (mCipher != null) {
-                        mCipher!!.init(Cipher.DECRYPT_MODE, mSecretKey)
-                        data = String(mCipher!!.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
+                    if (cipher != null) {
+                        cipher!!.init(Cipher.DECRYPT_MODE, secretKey)
+                        data = String(cipher!!.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
                         if (BuildConfig.DEBUG) Log.d(TAG, data)
                     }
                 } catch (err: BadPaddingException) {
-                    err.printStackTrace()
+                    if (BuildConfig.DEBUG) err.printStackTrace()
                 } catch (err: IllegalBlockSizeException) {
-                    err.printStackTrace()
+                    if (BuildConfig.DEBUG) err.printStackTrace()
                 } catch (err: InvalidKeyException) {
-                    err.printStackTrace()
+                    if (BuildConfig.DEBUG) err.printStackTrace()
                 }
 
                 if (data == Server.SIGNAL_CLOSE) {
@@ -258,7 +258,7 @@ class DataService : JobIntentService() {
                     socket.close()
                     if (BuildConfig.DEBUG) Log.d(TAG, "Socket closed")
                 } catch (err: IOException) {
-                    err.printStackTrace()
+                    if (BuildConfig.DEBUG) err.printStackTrace()
                 }
 
             }

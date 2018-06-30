@@ -20,32 +20,26 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.lang.ref.WeakReference
 
-class ClientMessageHandler(context: Context) : Handler() {
-    private val mContext: WeakReference<Context>
-    init {
-        mContext = WeakReference(context)
-    }
+class ClientMessageHandler(ctx: Context) : Handler() {
+    private val context = WeakReference<Context>(ctx)
     override fun handleMessage(msg: Message) {
-        val bundle = msg.data
-        if (bundle.containsKey("json")) { // command to change state
+        if (msg.data.containsKey("json")) { // command to change state
             try {
-                val json = JSONObject(bundle.getString("json"))
+                val json = JSONObject(msg.data.getString("json"))
                 handleJSON(json)
             } catch (err: JSONException) {
-                err.printStackTrace()
+                if(BuildConfig.DEBUG) err.printStackTrace()
             }
         }
     }
     @Throws(JSONException::class)
     private fun handleJSON(json: JSONObject) {
         var bSignal = false
-        val context = mContext.get()
-
         var statusModel: StatusModel? = null
         if (json.has(StatusORM.TABLE)) {
             var db: SQLiteDatabase? = null
             try {
-                db = GIFTVDB(context!!).writableDatabase
+                db = GIFTVDB(context.get()!!).writableDatabase
                 statusModel = StatusModel(json.getJSONObject(StatusORM.TABLE))
                 val orm = StatusORM(db)
                 if (orm.save(statusModel)) {
@@ -53,9 +47,9 @@ class ClientMessageHandler(context: Context) : Handler() {
                     bSignal = true
                 }
             } catch (err: JSONException) {
-                err.printStackTrace()
+                if(BuildConfig.DEBUG) err.printStackTrace()
             } finally {
-                if (db != null) db.close()
+                if(db?.isOpen==true) db.close()
             }
         }
 
@@ -63,7 +57,7 @@ class ClientMessageHandler(context: Context) : Handler() {
             if (BuildConfig.DEBUG) Log.d(TAG, "Saving Gifs")
             var db: SQLiteDatabase? = null
             try {
-                db = GIFTVDB(context!!).writableDatabase
+                db = GIFTVDB(context.get()!!).writableDatabase
                 val current_time = System.currentTimeMillis()
                 val terms = if (json.isNull("terms")) null else json.getString("terms")
                 val jsonGifs = json.getJSONArray(GifORM.TABLE)
@@ -75,13 +69,13 @@ class ClientMessageHandler(context: Context) : Handler() {
                     if (BuildConfig.DEBUG) Log.d(TAG, "gif added to television log")
                 }
             } catch (err: JSONException) {
-                err.printStackTrace()
+                if(BuildConfig.DEBUG) err.printStackTrace()
             } finally {
-                if (db != null) db.close()
+                if(db?.isOpen==true) db.close()
             }
         }
 
-        if (bSignal) LocalBroadcastManager.getInstance(context!!).sendBroadcast(Intent(MobileTVActivity.SIGNAL_CHANGE_CHANNEL))
+        if (bSignal) LocalBroadcastManager.getInstance(context.get()!!).sendBroadcast(Intent(MobileTVActivity.SIGNAL_CHANGE_CHANNEL))
     }
 
 }

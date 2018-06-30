@@ -82,8 +82,8 @@ class GIFTVDB(ctx: Context) : SQLiteOpenHelper(ctx, NAME, null, VERSION) {
     override fun onUpgrade(database: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if (BuildConfig.DEBUG) Log.w(NAME, "Upgrading from $oldVersion to $newVersion")
 
-        database.execSQL("DROP TABLE IF EXISTS ${TABLE_LINK_SEARCH_GIF}")
-        database.execSQL("DROP TABLE IF EXISTS ${TABLE_LINK_TV_GIF}")
+        database.execSQL("DROP TABLE IF EXISTS $TABLE_LINK_SEARCH_GIF")
+        database.execSQL("DROP TABLE IF EXISTS $TABLE_LINK_TV_GIF")
         database.execSQL("DROP TABLE IF EXISTS " + TCPServiceORM.TABLE)
         database.execSQL("DROP TABLE IF EXISTS " + StatusORM.TABLE)
         database.execSQL("DROP TABLE IF EXISTS " + GifORM.TABLE)

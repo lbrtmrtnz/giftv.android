@@ -178,16 +178,15 @@ class MobileActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
     }
 
     private fun startMobileTV() {
-        val fragMan = supportFragmentManager
-        val ft = fragMan.beginTransaction()
+        val ft = supportFragmentManager.beginTransaction()
 
         mMobileTVNameDialog = MobileTVNameDialog()
-        mMobileTVNameDialog!!.setOnStartMobileTVListener(object : MobileTVNameDialog.OnStartMobileTVListener {
+        mMobileTVNameDialog?.actionListener = object : MobileTVNameDialog.ActionListener {
             override fun onStartMobileTV(name: String) {
                 startMobileTV(name)
             }
-        })
-        mMobileTVNameDialog!!.show(ft, "mobile_tv_name_dialog")
+        }
+        mMobileTVNameDialog?.show(ft, "mobile_tv_name_dialog")
     }
 
     private fun startMobileTV(name: String?) {
@@ -252,7 +251,7 @@ class MobileActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
                 val fragMan = supportFragmentManager
                 val dialog = SendChannelDialog()
 
-                dialog.setOnTVSelectedListener(object : SendChannelDialog.OnTVSelectedListener {
+                dialog.setOnTVSelectedListener(object : SendChannelDialog.ActionListener {
                     override fun onTVSelected(model: TCPServiceModel) {
                         mode.finish()
                     }

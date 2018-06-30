@@ -20,11 +20,11 @@ class TCPServiceModel : Model {
         id_status = getString(cursor, TCPServiceORM.COL_ID_STATUS)
     }
     override fun getContentValues(): ContentValues {
-        val cvalues = ContentValues()
-        cvalues.put(TCPServiceORM.COL_NAME, name)
-        cvalues.put(TCPServiceORM.COL_HOST, host)
-        cvalues.put(TCPServiceORM.COL_PORT, port)
-        cvalues.put(TCPServiceORM.COL_ID_STATUS, id_status)
-        return cvalues
+        val cValues = ContentValues()
+        cValues.put(TCPServiceORM.COL_NAME, name)
+        cValues.put(TCPServiceORM.COL_HOST, host)
+        cValues.put(TCPServiceORM.COL_PORT, port)
+        cValues.put(TCPServiceORM.COL_ID_STATUS, id_status)
+        return cValues
     }
 }

@@ -6,17 +6,17 @@ import android.view.*
 import com.icenerd.giftv.R
 
 class HomeFragment : Fragment() {
-    private var mFragmentView: View? = null
+    private var fragmentHome: View? = null
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         activity?.title = "Home"
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         if (savedInstanceState == null) {
-            mFragmentView = inflater.inflate(R.layout.fragment_home, container, false)
+            fragmentHome = inflater.inflate(R.layout.fragment_home, container, false)
             setHasOptionsMenu(true)
         }
-        return mFragmentView
+        return fragmentHome
     }
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         inflater!!.inflate(R.menu.home, menu)

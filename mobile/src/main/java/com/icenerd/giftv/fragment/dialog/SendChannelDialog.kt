@@ -36,41 +36,37 @@ import java.util.*
 
 class SendChannelDialog : AppCompatDialogFragment(), LoaderManager.LoaderCallbacks<Cursor>, NsdHelper.NsdListener, TCPServiceAdapter.OnItemClickListener {
     companion object {
+        private const val TAG = "SendChannelDialog"
         private val LOADER_ID = Random().nextInt()
+    }
+    var actionListener: ActionListener? = null
+    interface ActionListener {
+        fun onTVSelected(model: TCPServiceModel)
     }
     private val nsdHelper: NsdHelper by lazy {
         val nsdMan = activity?.getSystemService(Context.NSD_SERVICE) as NsdManager
         val nsType = getString(R.string.network_service_type)
         NsdHelper(nsdMan, nsType)
     }
-    private var mFragmentView: View? = null
-    private var mProgressBar: ProgressBar? = null
-    private var mRecyclerView: RecyclerView? = null
-    private val mAdapter: TCPServiceAdapter by lazy { TCPServiceAdapter(this) }
-    private var mListener: OnTVSelectedListener? = null
-
-    interface OnTVSelectedListener {
-        fun onTVSelected(model: TCPServiceModel)
-    }
-
-    fun setOnTVSelectedListener(listener: OnTVSelectedListener) {
-        mListener = listener
-    }
+    private var fragmentView: View? = null
+    private var progressBar: ProgressBar? = null
+    private var recyclerView: RecyclerView? = null
+    private val adapter: TCPServiceAdapter by lazy { TCPServiceAdapter(this) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mFragmentView = inflater.inflate(R.layout.dialog_send_channel, container, false)
-        mProgressBar = mFragmentView!!.findViewById(R.id.progress_bar) as ProgressBar
-        mRecyclerView = mFragmentView!!.findViewById(R.id.recyclerview) as RecyclerView
-        return mFragmentView
+        fragmentView = inflater.inflate(R.layout.dialog_send_channel, container, false)
+        progressBar = fragmentView!!.findViewById(R.id.progress_bar) as ProgressBar
+        recyclerView = fragmentView!!.findViewById(R.id.recyclerview) as RecyclerView
+        return fragmentView
     }
 
     override fun onStart() {
         super.onStart()
-        mRecyclerView!!.setHasFixedSize(true)
-        mRecyclerView!!.layoutManager = LinearLayoutManager(activity)
-        mRecyclerView!!.itemAnimator = DefaultItemAnimator()
-        mRecyclerView!!.adapter = mAdapter
-        mFragmentView!!.findViewById<View>(R.id.action_cancel).setOnClickListener { dismiss() }
+        recyclerView!!.setHasFixedSize(true)
+        recyclerView!!.layoutManager = LinearLayoutManager(activity)
+        recyclerView!!.itemAnimator = DefaultItemAnimator()
+        recyclerView!!.adapter = adapter
+        fragmentView!!.findViewById<View>(R.id.action_cancel).setOnClickListener { dismiss() }
         activity?.loaderManager?.initLoader(LOADER_ID, Bundle(), this@SendChannelDialog)?.forceLoad()
     }
 
@@ -78,7 +74,6 @@ class SendChannelDialog : AppCompatDialogFragment(), LoaderManager.LoaderCallbac
         super.onResume()
 
         val intent = Intent(DataService.ACTION_LOST, null, activity, DataService::class.java)
-        //intent.putExtra("name", null );
         if (Build.VERSION.SDK_INT >= 21) {
             DataService.enqueueWork(activity!!, intent)
         } else {
@@ -99,20 +94,22 @@ class SendChannelDialog : AppCompatDialogFragment(), LoaderManager.LoaderCallbac
     }
 
     override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor) {
-        mAdapter.swapCursor(data)
+        adapter.swapCursor(data)
         if (data.count > 0) {
-            mProgressBar!!.visibility = View.GONE
+            progressBar!!.visibility = View.GONE
         } else {
-            mProgressBar!!.visibility = View.VISIBLE
+            progressBar!!.visibility = View.VISIBLE
         }
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {
-        mAdapter.changeCursor(null)
+        adapter.changeCursor(null)
     }
 
     override fun nsdServiceResolved(serviceInfo: NsdServiceInfo?) {
-        if (serviceInfo != null) {
+        if (serviceInfo == null) {
+            if(BuildConfig.DEBUG) Log.d(TAG, "nsdServiceResolved(serviceInfo == null)")
+        } else {
             val intent = Intent(DataService.ACTION_IDENTIFY, null, activity, DataService::class.java)
             intent.putExtra("name", serviceInfo.serviceName)
             intent.putExtra("host", serviceInfo.host.hostAddress)
@@ -135,7 +132,9 @@ class SendChannelDialog : AppCompatDialogFragment(), LoaderManager.LoaderCallbac
     }
 
     override fun nsdServiceLost(serviceInfo: NsdServiceInfo?) {
-        if (serviceInfo != null) {
+        if (serviceInfo == null) {
+            if(BuildConfig.DEBUG) Log.d(TAG, "nsdServiceLost(serviceInfo == null)")
+        } else {
             val intent = Intent(DataService.ACTION_LOST, null, activity, DataService::class.java)
             intent.putExtra("name", serviceInfo.serviceName)
             if (Build.VERSION.SDK_INT >= 21) {
@@ -143,8 +142,6 @@ class SendChannelDialog : AppCompatDialogFragment(), LoaderManager.LoaderCallbac
             } else {
                 activity?.startService(intent)
             }
-        } else {
-            // used to be where I would signal a dump of the current data collected
         }
     }
 
@@ -171,9 +168,9 @@ class SendChannelDialog : AppCompatDialogFragment(), LoaderManager.LoaderCallbac
                 activity?.startService(intent)
             }
         } catch (err: JSONException) {
-            err.printStackTrace()
+            if(BuildConfig.DEBUG) err.printStackTrace()
         } finally {
-            if (mListener != null) mListener!!.onTVSelected(model)
+            if (actionListener != null) actionListener!!.onTVSelected(model)
             dismiss()
         }
     }
