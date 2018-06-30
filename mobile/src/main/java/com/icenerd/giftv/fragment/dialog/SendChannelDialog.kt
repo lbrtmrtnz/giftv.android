@@ -38,13 +38,15 @@ class SendChannelDialog : AppCompatDialogFragment(), LoaderManager.LoaderCallbac
     companion object {
         private val LOADER_ID = Random().nextInt()
     }
-    private var mNsDiscoverer: NsdHelper? = null
-
+    private val nsdHelper: NsdHelper by lazy {
+        val nsdMan = activity?.getSystemService(Context.NSD_SERVICE) as NsdManager
+        val nsType = getString(R.string.network_service_type)
+        NsdHelper(nsdMan, nsType)
+    }
     private var mFragmentView: View? = null
     private var mProgressBar: ProgressBar? = null
     private var mRecyclerView: RecyclerView? = null
-    private var mAdapter: TCPServiceAdapter? = null
-
+    private val mAdapter: TCPServiceAdapter by lazy { TCPServiceAdapter(this) }
     private var mListener: OnTVSelectedListener? = null
 
     interface OnTVSelectedListener {
@@ -57,21 +59,19 @@ class SendChannelDialog : AppCompatDialogFragment(), LoaderManager.LoaderCallbac
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mFragmentView = inflater.inflate(R.layout.dialog_send_channel, container, false)
-
         mProgressBar = mFragmentView!!.findViewById(R.id.progress_bar) as ProgressBar
-
         mRecyclerView = mFragmentView!!.findViewById(R.id.recyclerview) as RecyclerView
+        return mFragmentView
+    }
+
+    override fun onStart() {
+        super.onStart()
         mRecyclerView!!.setHasFixedSize(true)
         mRecyclerView!!.layoutManager = LinearLayoutManager(activity)
         mRecyclerView!!.itemAnimator = DefaultItemAnimator()
-
-        mAdapter = TCPServiceAdapter(this)
         mRecyclerView!!.adapter = mAdapter
-        activity?.loaderManager?.initLoader(LOADER_ID, Bundle(), this@SendChannelDialog)?.forceLoad()
-
         mFragmentView!!.findViewById<View>(R.id.action_cancel).setOnClickListener { dismiss() }
-
-        return mFragmentView
+        activity?.loaderManager?.initLoader(LOADER_ID, Bundle(), this@SendChannelDialog)?.forceLoad()
     }
 
     override fun onResume() {
@@ -84,18 +84,12 @@ class SendChannelDialog : AppCompatDialogFragment(), LoaderManager.LoaderCallbac
         } else {
             activity?.startService(intent)
         }
-
-        val nsdMan = activity?.getSystemService(Context.NSD_SERVICE) as NsdManager
-        val nsType = getString(R.string.network_service_type)
-        mNsDiscoverer = NsdHelper(nsdMan, nsType)
-        mNsDiscoverer!!.startDiscovering(this)
+        nsdHelper.startDiscovering(this)
     }
 
     override fun onPause() {
         super.onPause()
-        if (mNsDiscoverer != null) {
-            mNsDiscoverer!!.stopDiscovering()
-        }
+        nsdHelper.stopDiscovering()
     }
 
     override fun onCreateLoader(id: Int, args: Bundle): Loader<Cursor>? {
@@ -105,7 +99,7 @@ class SendChannelDialog : AppCompatDialogFragment(), LoaderManager.LoaderCallbac
     }
 
     override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor) {
-        mAdapter!!.swapCursor(data)
+        mAdapter.swapCursor(data)
         if (data.count > 0) {
             mProgressBar!!.visibility = View.GONE
         } else {
@@ -114,10 +108,10 @@ class SendChannelDialog : AppCompatDialogFragment(), LoaderManager.LoaderCallbac
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {
-        mAdapter!!.changeCursor(null)
+        mAdapter.changeCursor(null)
     }
 
-    override fun NsdServiceResolved(serviceInfo: NsdServiceInfo?) {
+    override fun nsdServiceResolved(serviceInfo: NsdServiceInfo?) {
         if (serviceInfo != null) {
             val intent = Intent(DataService.ACTION_IDENTIFY, null, activity, DataService::class.java)
             intent.putExtra("name", serviceInfo.serviceName)
@@ -140,7 +134,7 @@ class SendChannelDialog : AppCompatDialogFragment(), LoaderManager.LoaderCallbac
         }
     }
 
-    override fun NsdServiceLost(serviceInfo: NsdServiceInfo?) {
+    override fun nsdServiceLost(serviceInfo: NsdServiceInfo?) {
         if (serviceInfo != null) {
             val intent = Intent(DataService.ACTION_LOST, null, activity, DataService::class.java)
             intent.putExtra("name", serviceInfo.serviceName)

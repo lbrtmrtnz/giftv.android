@@ -15,15 +15,15 @@ class NsdHelper(private val mNsdManager: NsdManager?, private val mType: String)
 
 
     interface NsdListener {
-        fun NsdServiceResolved(serviceInfo: NsdServiceInfo?)
-        fun NsdServiceLost(serviceInfo: NsdServiceInfo?)
+        fun nsdServiceResolved(serviceInfo: NsdServiceInfo?)
+        fun nsdServiceLost(serviceInfo: NsdServiceInfo?)
     }
 
     fun startDiscovering(listener: NsdListener) {
         if (mNsdManager != null) {
             mNsdManager.discoverServices(mType, NsdManager.PROTOCOL_DNS_SD, this)
             mNsdListener = listener
-            if (mNsdListener != null) mNsdListener!!.NsdServiceResolved(null)
+            if (mNsdListener != null) mNsdListener!!.nsdServiceResolved(null)
         }
     }
 
@@ -55,7 +55,7 @@ class NsdHelper(private val mNsdManager: NsdManager?, private val mType: String)
 
                 override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
                     if (BuildConfig.DEBUG) Log.d(TAG, "onServiceResolved: $serviceInfo")
-                    if (mNsdListener != null) mNsdListener!!.NsdServiceResolved(serviceInfo)
+                    if (mNsdListener != null) mNsdListener!!.nsdServiceResolved(serviceInfo)
                 }
 
             })
@@ -64,13 +64,13 @@ class NsdHelper(private val mNsdManager: NsdManager?, private val mType: String)
 
     override fun onServiceLost(serviceInfo: NsdServiceInfo) {
         if (BuildConfig.DEBUG) Log.d(TAG, "Network Service loss: $serviceInfo")
-        if (mNsdListener != null) mNsdListener!!.NsdServiceLost(serviceInfo)
+        if (mNsdListener != null) mNsdListener!!.nsdServiceLost(serviceInfo)
     }
 
     override fun onDiscoveryStopped(serviceType: String) {
         if (BuildConfig.DEBUG) Log.d(TAG, "Stopped looking for $serviceType")
         mbDiscovering = false
-        if (mNsdListener != null) mNsdListener!!.NsdServiceLost(null)
+        if (mNsdListener != null) mNsdListener!!.nsdServiceLost(null)
     }
 
     override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) {
