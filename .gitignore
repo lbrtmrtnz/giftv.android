@@ -1,9 +1,5 @@
 android.*.jks
 android.*.keyring
-gradle
-gradle.properties
-gradlew.bat
-gradlew
 *.iml
 .DS_Store
 .gradle

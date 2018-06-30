@@ -26,15 +26,13 @@ android {
         }
     }
     buildTypes {
-        debug {
-        }
+        debug { }
         release {
             signingConfig signingConfigs.release
         }
     }
 }
 dependencies {
-    implementation 'com.google.firebase:firebase-appindexing:15.0.1'
     implementation 'com.android.support:leanback-v17:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:design:27.1.1'
