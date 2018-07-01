@@ -251,11 +251,11 @@ class MobileActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
                 val fragMan = supportFragmentManager
                 val dialog = SendChannelDialog()
 
-                dialog.setOnTVSelectedListener(object : SendChannelDialog.ActionListener {
+                dialog.actionListener = object : SendChannelDialog.ActionListener {
                     override fun onTVSelected(model: TCPServiceModel) {
                         mode.finish()
                     }
-                })
+                }
 
                 var jsonBatch: String? = null
                 try {
