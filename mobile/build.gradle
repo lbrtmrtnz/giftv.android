@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+def minutesSinceEpoch = (new Date()).getTime()/(1000 * 60)
 Properties keyRing = new Properties()
 keyRing.load(new FileInputStream(rootProject.file('android.giftv.keyring')))
 android {
@@ -27,9 +28,13 @@ android {
     }
     buildTypes {
         debug {
+            buildConfigField("String", "BUILD_TIME", "\"0\"")
+            resValue("string", "build_time", "0")
         }
         release {
             signingConfig signingConfigs.release
+            buildConfigField("String", "BUILD_TIME", "\"${minutesSinceEpoch}\"")
+            resValue("string", "build_time", "${minutesSinceEpoch}")
         }
     }
 }

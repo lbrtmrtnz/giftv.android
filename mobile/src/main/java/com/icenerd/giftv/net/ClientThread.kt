@@ -29,12 +29,12 @@ import javax.crypto.NoSuchPaddingException
 import javax.crypto.spec.SecretKeySpec
 
 class ClientThread @Throws(NoSuchAlgorithmException::class, NoSuchPaddingException::class)
-constructor(private val mSecretKey: SecretKeySpec, private val mSocket: Socket, private val mHandler: Handler?) : Runnable {
+constructor(private val secretKeySpec: SecretKeySpec, private val socket: Socket, private val handler: Handler?) : Runnable {
     companion object {
-        private val TAG = "ClientThread"
+        private const val TAG = "ClientThread"
     }
 
-    private val mCipher: Cipher?
+    private val cipher by lazy { Cipher.getInstance("AES") }
 
     @get:Synchronized
     var isRunning = false
@@ -45,10 +45,6 @@ constructor(private val mSecretKey: SecretKeySpec, private val mSocket: Socket, 
         isRunning = false
     }
 
-    init {
-        mCipher = Cipher.getInstance("AES")
-    }
-
     override fun run() {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND)
         isRunning = true
@@ -56,22 +52,22 @@ constructor(private val mSecretKey: SecretKeySpec, private val mSocket: Socket, 
 
         try {
 
-            val outgoing = PrintWriter(mSocket.getOutputStream(), true)
-            val incoming = BufferedReader(InputStreamReader(mSocket.getInputStream()))
+            val outgoing = PrintWriter(socket.getOutputStream(), true)
+            val incoming = BufferedReader(InputStreamReader(socket.getInputStream()))
 
             var data: String = incoming.readLine() // chomp
             while(!data.isEmpty()) {
                 try {
-                    if (mCipher != null) {
-                        mCipher.init(Cipher.DECRYPT_MODE, mSecretKey)
-                        data = String(mCipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
+                    if (cipher != null) {
+                        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+                        data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
                     }
                 } catch (err: BadPaddingException) {
-                    err.printStackTrace()
+                    if(BuildConfig.DEBUG) err.printStackTrace()
                 } catch (err: IllegalBlockSizeException) {
-                    err.printStackTrace()
+                    if(BuildConfig.DEBUG) err.printStackTrace()
                 } catch (err: InvalidKeyException) {
-                    err.printStackTrace()
+                    if(BuildConfig.DEBUG) err.printStackTrace()
                 }
 
                 if (data.equals(Server.SIGNAL_IDENTIFY)) {
@@ -80,16 +76,16 @@ constructor(private val mSecretKey: SecretKeySpec, private val mSocket: Socket, 
                     if (!data.isEmpty()) {
 
                         try {
-                            if (mCipher != null) {
-                                mCipher.init(Cipher.DECRYPT_MODE, mSecretKey)
-                                data = String(mCipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
+                            if (cipher != null) {
+                                cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+                                data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
                             }
                         } catch (err: BadPaddingException) {
-                            err.printStackTrace()
+                            if(BuildConfig.DEBUG) err.printStackTrace()
                         } catch (err: IllegalBlockSizeException) {
-                            err.printStackTrace()
+                            if(BuildConfig.DEBUG) err.printStackTrace()
                         } catch (err: InvalidKeyException) {
-                            err.printStackTrace()
+                            if(BuildConfig.DEBUG) err.printStackTrace()
                         }
 
                         try {
@@ -102,26 +98,26 @@ constructor(private val mSecretKey: SecretKeySpec, private val mSocket: Socket, 
                             json.put(InstallationORM.COL_BRAND, Build.BRAND)
                             json.put(InstallationORM.COL_MANUFACTURER, Build.MANUFACTURER)
                             json.put(InstallationORM.COL_MODEL, Build.MODEL)
-                            json.put(InstallationORM.COL_SERIAL, Build.SERIAL)
+                            json.put(InstallationORM.COL_SERIAL, BuildConfig.BUILD_TIME)
                             json.put(InstallationORM.COL_SDK_INT, Build.VERSION.SDK_INT)
 
-                            if (mCipher != null) {
-                                mCipher.init(Cipher.ENCRYPT_MODE, mSecretKey)
+                            if (cipher != null) {
+                                cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
 
-                                outgoing.println(Base64.encodeToString(mCipher.doFinal(Server.SIGNAL_IDENTIFY.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                                outgoing.println(Base64.encodeToString(cipher.doFinal(Server.SIGNAL_IDENTIFY.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
 
                                 if (BuildConfig.DEBUG) Log.d("RESPONSE", json.toString(1))
-                                outgoing.println(Base64.encodeToString(mCipher.doFinal(json.toString().toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                                outgoing.println(Base64.encodeToString(cipher.doFinal(json.toString().toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
                             }
 
                         } catch (err: BadPaddingException) {
-                            err.printStackTrace()
+                            if(BuildConfig.DEBUG) err.printStackTrace()
                         } catch (err: IllegalBlockSizeException) {
-                            err.printStackTrace()
+                            if(BuildConfig.DEBUG) err.printStackTrace()
                         } catch (err: InvalidKeyException) {
-                            err.printStackTrace()
+                            if(BuildConfig.DEBUG) err.printStackTrace()
                         } catch (err: JSONException) {
-                            err.printStackTrace()
+                            if(BuildConfig.DEBUG) err.printStackTrace()
                         }
 
                     }
@@ -133,52 +129,51 @@ constructor(private val mSecretKey: SecretKeySpec, private val mSocket: Socket, 
                     if (!data.isEmpty()) {
 
                         try {
-                            if (mCipher != null) {
-                                mCipher.init(Cipher.DECRYPT_MODE, mSecretKey)
-                                data = String(mCipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
+                            if (cipher != null) {
+                                cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+                                data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
                             }
                         } catch (err: BadPaddingException) {
-                            err.printStackTrace()
+                            if(BuildConfig.DEBUG) err.printStackTrace()
                         } catch (err: IllegalBlockSizeException) {
-                            err.printStackTrace()
+                            if(BuildConfig.DEBUG) err.printStackTrace()
                         } catch (err: InvalidKeyException) {
-                            err.printStackTrace()
+                            if(BuildConfig.DEBUG) err.printStackTrace()
                         }
 
                         if (BuildConfig.DEBUG) Log.d("SIGNAL_JSON", data)
-                        if (mHandler != null) {
+                        if (handler != null) {
                             val bundle = Bundle()
                             bundle.putString("json", data)
                             val message = Message()
                             message.data = bundle
-                            mHandler.sendMessage(message)
+                            handler.sendMessage(message)
                             if (BuildConfig.DEBUG) Log.d("SIGNAL_JSON", "sent to handler")
                         }
                     }
                 } else if (data.equals(Server.SIGNAL_CLOSE) || !isRunning) {
                     if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_CLOSE received")
                     try {
-                        if (mCipher != null) {
-                            mCipher.init(Cipher.ENCRYPT_MODE, mSecretKey)
+                        if (cipher != null) {
+                            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
 
-                            outgoing.println(Base64.encodeToString(mCipher.doFinal(Server.SIGNAL_CLOSE.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                            outgoing.println(Base64.encodeToString(cipher.doFinal(Server.SIGNAL_CLOSE.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
                             if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_CLOSE sent")
                         }
                     } catch (err: BadPaddingException) {
-                        err.printStackTrace()
+                        if(BuildConfig.DEBUG) err.printStackTrace()
                     } catch (err: IllegalBlockSizeException) {
-                        err.printStackTrace()
+                        if(BuildConfig.DEBUG) err.printStackTrace()
                     } catch (err: InvalidKeyException) {
-                        err.printStackTrace()
+                        if(BuildConfig.DEBUG) err.printStackTrace()
                     }
 
                     break
                 }
 
             }
-
         } catch (err: IOException) {
-            err.printStackTrace()
+            if(BuildConfig.DEBUG) err.printStackTrace()
         } finally {
             isRunning = false
             closeSocket()
@@ -186,12 +181,12 @@ constructor(private val mSecretKey: SecretKeySpec, private val mSocket: Socket, 
     }
 
     private fun closeSocket() {
-        if (!mSocket.isClosed) {
+        if (!socket.isClosed) {
             try {
-                mSocket.close()
+                socket.close()
                 if (BuildConfig.DEBUG) Log.d(TAG, "Socket closed")
             } catch (err: IOException) {
-                err.printStackTrace()
+                if(BuildConfig.DEBUG) err.printStackTrace()
             }
 
         }

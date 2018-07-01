@@ -18,7 +18,7 @@ class AboutDialog : DialogFragment() {
         val view = inflater.inflate(R.layout.dialog_about, container, false)
         val dialog = dialog
         dialog.window!!.requestFeature(Window.FEATURE_NO_TITLE)
-        (view.findViewById(R.id.text_build) as TextView).text = "${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE}"
+        view.findViewById<TextView>(R.id.text_build).text = "${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE}-${BuildConfig.BUILD_TIME}"
         return view
     }
 }

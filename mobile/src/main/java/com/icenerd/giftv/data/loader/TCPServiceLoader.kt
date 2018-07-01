@@ -3,75 +3,61 @@ package com.icenerd.giftv.data.loader
 import android.content.*
 import android.database.Cursor
 import android.support.v4.content.LocalBroadcastManager
-import android.util.Log
-import com.icenerd.giftv.BuildConfig
 import com.icenerd.giftv.data.GIFTVDB
 import com.icenerd.giftv.data.orm.TCPServiceORM
 import com.icenerd.giftv.net.DataService
 
-class TCPServiceLoader(context: Context) : AsyncTaskLoader<Cursor>(context) {
-    companion object {
-        private val TAG = "TCPServiceLoader"
-    }
-    private val mORM: TCPServiceORM
-    private val mBroadcastManager: LocalBroadcastManager
-    private val mObserver = object : BroadcastReceiver() {
+class TCPServiceLoader(ctx: Context) : AsyncTaskLoader<Cursor>(ctx) {
+    private var cursor: Cursor? = null
+        set(value) {
+            field?.isClosed?:field?.close()
+            field = value
+        }
+    private val tcpServiceORM: TCPServiceORM by lazy { TCPServiceORM(GIFTVDB(context).readableDatabase) }
+    private val localBroadcastManager: LocalBroadcastManager by lazy { LocalBroadcastManager.getInstance(context) }
+    private val localBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action.equals(DataService.UPDATE_SERVICE_INFO)) {
-                if (BuildConfig.DEBUG) Log.d(TAG, "TCP Service Info updated, calling onContentChanged()")
-                onContentChanged()
-            }
+            if (intent.action == DataService.UPDATE_SERVICE_INFO) onContentChanged()
         }
     }
-    private var mData: Cursor? = null
-    init {
-        mORM = TCPServiceORM(GIFTVDB(context).readableDatabase)
-        mBroadcastManager = LocalBroadcastManager.getInstance(context)
-    }
+
     override fun loadInBackground(): Cursor {
-        return mORM.getCursorAll(null)
+        return tcpServiceORM.getCursorAll(null)
     }
     override fun deliverResult(data: Cursor?) {
         if (isReset) {
-            if (data != null) releaseResources(data)
+            cursor = null
             return
         }
 
-        val oldData = mData
-        mData = data
+        val oldData = cursor
+        cursor = data
 
         if (isStarted) {
             super.deliverResult(data)
         }
-        if (oldData != null && oldData !== data) releaseResources(oldData)
+        if (oldData != null && oldData != data) cursor = null
     }
     override fun onStartLoading() {
-        if (mData != null) deliverResult(mData)
+        if (cursor != null) deliverResult(cursor)
 
         val intentFilter = IntentFilter()
         intentFilter.addAction(DataService.UPDATE_SERVICE_INFO)
-        mBroadcastManager.registerReceiver(mObserver, intentFilter)
+        localBroadcastManager.registerReceiver(localBroadcastReceiver, intentFilter)
 
-        if (takeContentChanged() || mData == null) forceLoad()
+        if (takeContentChanged() || cursor == null) forceLoad()
     }
     override fun onStopLoading() {
         cancelLoad()
     }
     override fun onReset() {
-        onStopLoading()
-
-        if (mData != null) {
-            releaseResources(mData!!)
-            mData = null
-        }
-
-        mBroadcastManager.unregisterReceiver(mObserver)
+        cancelLoad()
+        cursor = null
+        localBroadcastManager.unregisterReceiver(localBroadcastReceiver)
     }
+
     override fun onCanceled(data: Cursor?) {
         super.onCanceled(data)
-        if (data != null) releaseResources(data)
-    }
-    private fun releaseResources(data: Cursor) {
-        data.close()
+        cursor = null
     }
 }

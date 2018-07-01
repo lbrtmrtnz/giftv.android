@@ -25,19 +25,19 @@ import pl.droidsonroids.gif.GifImageView
 import java.util.*
 
 class GifAdapter() : CursorRecyclerAdapter<GifAdapter.ViewHolder>(null) {
-    private val TAG = "GifAdapter"
+    interface ActionListener {
+        fun onItemClick(model: GifModel)
+        fun onItemLongClick(model: GifModel)
+    }
 
-    var mListener: OnItemClickListener? = null
-    var mLongListener: OnItemLongClickListener? = null
-
-    var toggle_selection = false
-    private var mRequestQueue: RequestQueue? = null
-    private var mImgLoader: ImageLoader? = null
-    private var mGifLoader: GifLoader? = null
-
-    private var mAccentColor = 0
+    var actionListener: ActionListener? = null
+    var toggleSelection = false
 
     private val mraGIPHYID = HashMap<GifModel, Boolean>()
+    private var requestQueue: RequestQueue? = null
+    private var imageLoader: ImageLoader? = null
+    private var gifLoader: GifLoader? = null
+
     val selectedGIF: List<GifModel>
         get() {
             val raGIFID = ArrayList<GifModel>()
@@ -62,17 +62,9 @@ class GifAdapter() : CursorRecyclerAdapter<GifAdapter.ViewHolder>(null) {
             return count
         }
 
-    interface OnItemClickListener {
-        fun onItemClick(model: GifModel)
-    }
-
-    interface OnItemLongClickListener {
-        fun onItemLongClick(model: GifModel)
-    }
-
     fun clearSelections() {
         mraGIPHYID.clear()
-        toggle_selection = false
+        toggleSelection = false
         notifyDataSetChanged()
     }
 
@@ -84,17 +76,8 @@ class GifAdapter() : CursorRecyclerAdapter<GifAdapter.ViewHolder>(null) {
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
 
-        if (mAccentColor == 0) {
-            val ctx = recyclerView.context
-            if (Build.VERSION.SDK_INT >= 23) {
-                mAccentColor = ctx.resources.getColor(R.color.colorAccent, recyclerView.context.theme)
-            } else {
-                mAccentColor = ResourcesCompat.getColor(ctx.resources, R.color.colorAccent, ctx.theme)
-            }
-        }
-
-        mRequestQueue = Volley.newRequestQueue(recyclerView.context)
-        mImgLoader = ImageLoader(mRequestQueue, object : ImageLoader.ImageCache {
+        requestQueue = Volley.newRequestQueue(recyclerView.context)
+        imageLoader = ImageLoader(requestQueue, object : ImageLoader.ImageCache {
             private val mCache = LruCache<String, Bitmap>(50)
             override fun putBitmap(url: String, bmp: Bitmap) {
                 mCache.put(url, bmp)
@@ -103,7 +86,7 @@ class GifAdapter() : CursorRecyclerAdapter<GifAdapter.ViewHolder>(null) {
                 return mCache.get(url)
             }
         })
-        mGifLoader = GifLoader(mRequestQueue, object : GifLoader.GifCache {
+        gifLoader = GifLoader(requestQueue, object : GifLoader.GifCache {
             private val mCache = LruCache<String, GifDrawable>(20)
             override fun putGif(url: String, gif: GifDrawable) {
                 mCache.put(url, gif)
@@ -116,80 +99,76 @@ class GifAdapter() : CursorRecyclerAdapter<GifAdapter.ViewHolder>(null) {
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        mRequestQueue?.stop()
+        requestQueue?.stop()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
         if(item!=null) {
             val gameModel = GifModel(item)
-            holder.bind(gameModel, mListener, mLongListener)
+            holder.bind(gameModel, actionListener)
         }
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-        val frame_container_gif_item: View
-        val container_gif_item: View
-        val giphy_item_net_img: NetworkImageView
-        val giphy_item_gif: GifImageView
-        val progress_bar: ProgressBar
+        val frameContainerGifItem: View = view.findViewById(R.id.frame_container_gif_item)
+        val containerGifItem: View = view.findViewById(R.id.container_gif_item)
+        val giphyItemNetImg: NetworkImageView = view.findViewById(R.id.giphy_item_net_img)
+        val giphyItemGif: GifImageView = view.findViewById(R.id.giphy_item_gif)
+        val progressBar: ProgressBar = view.findViewById(R.id.progress_bar)
 
-        init {
-            frame_container_gif_item = itemView.findViewById(R.id.frame_container_gif_item)
-            container_gif_item = itemView.findViewById(R.id.container_gif_item)
-            giphy_item_net_img = itemView.findViewById(R.id.giphy_item_net_img) as NetworkImageView
-            giphy_item_gif = itemView.findViewById(R.id.giphy_item_gif) as GifImageView
-            progress_bar = itemView.findViewById(R.id.progress_bar) as ProgressBar
-        }
+        fun bind(model: GifModel, listener: ActionListener?) {
+            val drawable = giphyItemGif.drawable as GifDrawable?
+            if (drawable != null && drawable.isPlaying) drawable.stop()
 
-        fun bind(model: GifModel, listener: OnItemClickListener?, longListener: OnItemLongClickListener?) {
-            val drawable = giphy_item_gif.drawable as GifDrawable?
-            if (drawable != null && drawable.isPlaying) {
-                drawable.stop()
-            }
+            val ctx = frameContainerGifItem.context
+            val accentColor = if (Build.VERSION.SDK_INT >= 23)
+                ctx.resources.getColor(R.color.colorAccent, ctx.theme)
+            else
+                ResourcesCompat.getColor(ctx.resources, R.color.colorAccent, ctx.theme)
 
-            frame_container_gif_item.setBackgroundColor(if(mraGIPHYID.get(model)?:false) mAccentColor else Color.TRANSPARENT)
+            frameContainerGifItem.setBackgroundColor(if(mraGIPHYID.get(model)?:false) accentColor else Color.TRANSPARENT)
 
-            giphy_item_gif.visibility = View.INVISIBLE
-            progress_bar.visibility = View.INVISIBLE
-            giphy_item_net_img.setImageUrl(model.fixed_width_small_still, mImgLoader)
-            container_gif_item.setOnClickListener {
-                if (toggle_selection) {
+            giphyItemGif.visibility = View.INVISIBLE
+            progressBar.visibility = View.INVISIBLE
+            giphyItemNetImg.setImageUrl(model.fixed_width_small_still, imageLoader)
+            containerGifItem.setOnClickListener {
+                if (toggleSelection) {
                     mraGIPHYID[model] = !(mraGIPHYID[model]?:false)
-                    frame_container_gif_item.setBackgroundColor(if(mraGIPHYID[model]?:false) mAccentColor else Color.TRANSPARENT)
+                    frameContainerGifItem.setBackgroundColor(if(mraGIPHYID[model]?:false) accentColor else Color.TRANSPARENT)
                 }
-                val container = mGifLoader!![model.fixed_width?:"", object : GifLoader.GifListener {
+                val container = gifLoader!![model.fixed_width?:"", object : GifLoader.GifListener {
                     override fun onResponse(response: GifLoader.GifContainer, isImmediate: Boolean) {
-                        giphy_item_gif.setImageDrawable(response.gif)
-                        val itemDrawable = giphy_item_gif.drawable as GifDrawable?
+                        giphyItemGif.setImageDrawable(response.gif)
+                        val itemDrawable = giphyItemGif.drawable as GifDrawable?
                         if (itemDrawable == null) {
-                            giphy_item_gif.visibility = View.INVISIBLE
+                            giphyItemGif.visibility = View.INVISIBLE
                         } else {
-                            giphy_item_gif.visibility = View.VISIBLE
+                            giphyItemGif.visibility = View.VISIBLE
                             if (!itemDrawable.isPlaying) itemDrawable.start()
                         }
-                        progress_bar.visibility = View.INVISIBLE
+                        progressBar.visibility = View.INVISIBLE
                     }
 
                     override fun onErrorResponse(error: VolleyError) {}
                 }]
 
-                giphy_item_gif.setImageDrawable(container.gif)
-                val itemDrawable = giphy_item_gif.drawable as GifDrawable?
+                giphyItemGif.setImageDrawable(container.gif)
+                val itemDrawable = giphyItemGif.drawable as GifDrawable?
                 if (itemDrawable == null) {
-                    giphy_item_gif.visibility = View.INVISIBLE
-                    progress_bar.visibility = View.VISIBLE
+                    giphyItemGif.visibility = View.INVISIBLE
+                    progressBar.visibility = View.VISIBLE
                 } else {
-                    giphy_item_gif.visibility = View.VISIBLE
+                    giphyItemGif.visibility = View.VISIBLE
                     if (!itemDrawable.isPlaying) itemDrawable.start()
                 }
                 listener?.onItemClick(model)
             }
-            container_gif_item.setOnLongClickListener {
-                if (longListener != null) {
-                    longListener.onItemLongClick(model)
-                    container_gif_item.callOnClick()
+            containerGifItem.setOnLongClickListener {
+                if (listener != null) {
+                    listener.onItemLongClick(model)
+                    containerGifItem.callOnClick()
                     true
                 } else {
                     false

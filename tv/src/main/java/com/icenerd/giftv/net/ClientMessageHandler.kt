@@ -1,5 +1,6 @@
 package com.icenerd.giftv.net
 
+
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
@@ -8,7 +9,6 @@ import android.os.Handler
 import android.os.Message
 import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
-import com.icenerd.data.Installation
 import com.icenerd.giftv.BuildConfig
 import com.icenerd.giftv.GifTVActivity
 import com.icenerd.giftv.data.GIFTVDB
@@ -20,48 +20,36 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.lang.ref.WeakReference
 
-class ClientMessageHandler(context: Context) : Handler() {
-
-    private val mContext: WeakReference<Context>
-
-    init {
-        mContext = WeakReference(context)
-    }
-
+class ClientMessageHandler(ctx: Context) : Handler() {
+    private val context = WeakReference<Context>(ctx)
     override fun handleMessage(msg: Message) {
-        val bundle = msg.data
-        if (bundle.containsKey("json")) { // command to change state
+        if (msg.data.containsKey("json")) { // command to change state
             try {
-                val json = JSONObject(bundle.getString("json"))
+                val json = JSONObject(msg.data.getString("json"))
                 handleJSON(json)
             } catch (err: JSONException) {
-                err.printStackTrace()
+                if(BuildConfig.DEBUG) err.printStackTrace()
             }
-
         }
     }
-
     @Throws(JSONException::class)
     private fun handleJSON(json: JSONObject) {
         var bSignal = false
-        val context = mContext.get()
-
         var statusModel: StatusModel? = null
         if (json.has(StatusORM.TABLE)) {
             var db: SQLiteDatabase? = null
             try {
-                db = GIFTVDB(context!!).writableDatabase
+                db = GIFTVDB(context.get()!!).writableDatabase
                 statusModel = StatusModel(json.getJSONObject(StatusORM.TABLE))
-                if (BuildConfig.DEBUG) Log.d("compare", String.format("%s to %s", statusModel.getUUID(), Installation.getUUID(context)))
-                val orm = StatusORM(db!!)
+                val orm = StatusORM(db)
                 if (orm.save(statusModel)) {
-                    db.close()
+                    db!!.close()
                     bSignal = true
                 }
             } catch (err: JSONException) {
-                err.printStackTrace()
+                if(BuildConfig.DEBUG) err.printStackTrace()
             } finally {
-                if (db != null) db.close()
+                if(db?.isOpen==true) db.close()
             }
         }
 
@@ -69,7 +57,7 @@ class ClientMessageHandler(context: Context) : Handler() {
             if (BuildConfig.DEBUG) Log.d(TAG, "Saving Gifs")
             var db: SQLiteDatabase? = null
             try {
-                db = GIFTVDB(context!!).writableDatabase
+                db = GIFTVDB(context.get()!!).writableDatabase
                 val current_time = System.currentTimeMillis()
                 val terms = if (json.isNull("terms")) null else json.getString("terms")
                 val jsonGifs = json.getJSONArray(GifORM.TABLE)
@@ -77,17 +65,17 @@ class ClientMessageHandler(context: Context) : Handler() {
                 for (i in 0 until jsonGifs.length()) {
                     val model = GifModel(jsonGifs.getJSONObject(i))
                     orm.save(model)
-                    orm.tv_log(current_time, terms!!, model)
+                    orm.tv_log(current_time, terms?:"", model)
                     if (BuildConfig.DEBUG) Log.d(TAG, "gif added to television log")
                 }
             } catch (err: JSONException) {
-                err.printStackTrace()
+                if(BuildConfig.DEBUG) err.printStackTrace()
             } finally {
-                if (db != null) db.close()
+                if(db?.isOpen==true) db.close()
             }
         }
 
-        if (bSignal) LocalBroadcastManager.getInstance(context!!).sendBroadcast(Intent(GifTVActivity.SIGNAL_CHANGE_CHANNEL))
+        if (bSignal) LocalBroadcastManager.getInstance(context.get()!!).sendBroadcast(Intent(GifTVActivity.SIGNAL_CHANGE_CHANNEL))
     }
 
 }

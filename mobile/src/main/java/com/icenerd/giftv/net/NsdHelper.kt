@@ -6,48 +6,48 @@ import android.util.Log
 
 import com.icenerd.giftv.BuildConfig
 
-class NsdHelper(private val mNsdManager: NsdManager?, private val mType: String) : NsdManager.DiscoveryListener {
+class NsdHelper(private val nsdManager: NsdManager?, private val serviceType: String) : NsdManager.DiscoveryListener {
     companion object {
         private val TAG = "NsdHelper"
     }
-    private var mbDiscovering = false
-    private var mNsdListener: NsdListener? = null
+    private var isDiscovering = false
+    private var nsdListener: NsdListener? = null
 
 
     interface NsdListener {
-        fun NsdServiceResolved(serviceInfo: NsdServiceInfo?)
-        fun NsdServiceLost(serviceInfo: NsdServiceInfo?)
+        fun nsdServiceResolved(serviceInfo: NsdServiceInfo?)
+        fun nsdServiceLost(serviceInfo: NsdServiceInfo?)
     }
 
     fun startDiscovering(listener: NsdListener) {
-        if (mNsdManager != null) {
-            mNsdManager.discoverServices(mType, NsdManager.PROTOCOL_DNS_SD, this)
-            mNsdListener = listener
-            if (mNsdListener != null) mNsdListener!!.NsdServiceResolved(null)
+        if (nsdManager != null) {
+            nsdManager.discoverServices(serviceType, NsdManager.PROTOCOL_DNS_SD, this)
+            nsdListener = listener
+            nsdListener?.nsdServiceResolved(null)
         }
     }
 
     fun stopDiscovering() {
-        if (mbDiscovering && mNsdManager != null) {
-            mNsdManager.stopServiceDiscovery(this)
+        if (isDiscovering && nsdManager != null) {
+            nsdManager.stopServiceDiscovery(this)
         }
     }
 
     override fun onDiscoveryStarted(regType: String) {
         if (BuildConfig.DEBUG) Log.d(TAG, "Service discovery started")
-        mbDiscovering = true
+        isDiscovering = true
     }
 
     override fun onServiceFound(service: NsdServiceInfo) {
         if (BuildConfig.DEBUG) Log.d(TAG, "Service found: $service")
 
-        if (service.serviceType == mType) {
+        if (service.serviceType == serviceType) {
             if (BuildConfig.DEBUG) Log.d(TAG, "Resolving: " + service.serviceType)
-            mNsdManager!!.resolveService(service, object : NsdManager.ResolveListener {
+            nsdManager!!.resolveService(service, object : NsdManager.ResolveListener {
 
                 override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
                     if (errorCode == NsdManager.FAILURE_ALREADY_ACTIVE) {
-                        mNsdManager.resolveService(serviceInfo, this)
+                        nsdManager.resolveService(serviceInfo, this)
                     } else {
                         Log.e(TAG, "onResolveFailed: $errorCode")
                     }
@@ -55,7 +55,7 @@ class NsdHelper(private val mNsdManager: NsdManager?, private val mType: String)
 
                 override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
                     if (BuildConfig.DEBUG) Log.d(TAG, "onServiceResolved: $serviceInfo")
-                    if (mNsdListener != null) mNsdListener!!.NsdServiceResolved(serviceInfo)
+                    nsdListener?.nsdServiceResolved(serviceInfo)
                 }
 
             })
@@ -64,23 +64,23 @@ class NsdHelper(private val mNsdManager: NsdManager?, private val mType: String)
 
     override fun onServiceLost(serviceInfo: NsdServiceInfo) {
         if (BuildConfig.DEBUG) Log.d(TAG, "Network Service loss: $serviceInfo")
-        if (mNsdListener != null) mNsdListener!!.NsdServiceLost(serviceInfo)
+        nsdListener?.nsdServiceLost(serviceInfo)
     }
 
     override fun onDiscoveryStopped(serviceType: String) {
         if (BuildConfig.DEBUG) Log.d(TAG, "Stopped looking for $serviceType")
-        mbDiscovering = false
-        if (mNsdListener != null) mNsdListener!!.NsdServiceLost(null)
+        isDiscovering = false
+        nsdListener?.nsdServiceLost(null)
     }
 
     override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) {
         Log.e(TAG, "onStartDiscoveryFailed: $errorCode")
-        mbDiscovering = false
+        isDiscovering = false
     }
 
     override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {
         Log.e(TAG, "onStopDiscoveryFailed: $errorCode")
-        mbDiscovering = false
+        isDiscovering = false
     }
 
 }

@@ -11,11 +11,11 @@ class TCPServiceORM(db: SQLiteDatabase) : ORM<TCPServiceModel>(db, TABLE) {
         return TCPServiceModel(cursor)
     }
     companion object {
-        val TABLE = "service_info"
+        const val TABLE = "service_info"
 
-        val COL_NAME = "name"
-        val COL_HOST = "host"
-        val COL_PORT = "port"
-        val COL_ID_STATUS = "id_status"
+        const val COL_NAME = "name"
+        const val COL_HOST = "host"
+        const val COL_PORT = "port"
+        const val COL_ID_STATUS = "id_status"
     }
 }

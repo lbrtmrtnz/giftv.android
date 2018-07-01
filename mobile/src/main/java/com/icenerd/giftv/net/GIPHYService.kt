@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.support.v4.app.JobIntentService
 import android.support.v4.content.LocalBroadcastManager
+import com.icenerd.giftv.BuildConfig
 import com.icenerd.giftv.R
 import com.icenerd.giftv.data.GIFTVDB
 import com.icenerd.giphy.data.model.GifModel
@@ -18,35 +19,38 @@ import java.util.*
 
 class GIPHYService : JobIntentService() {
     companion object {
-        private val TAG = "GIPHYService"
+        private const val TAG = "GIPHYService"
 
-        val ACTION_GET_TRENDING = "action_get_trending"
-        val ACTION_GET_SEARCH = "action_get_search"
+        const val ACTION_GET_TRENDING = "action_get_trending"
+        const val ACTION_GET_SEARCH = "action_get_search"
 
-        val PAGESIZE_TRENDING = 24
-        val PAGESIZE_SEARCH = 24
+        const val PAGESIZE_TRENDING = 24
+        const val PAGESIZE_SEARCH = 24
 
-        val UPDATE_TRENDING = "update_trending"
-        val UPDATE_SEARCH = "update_search"
+        const val UPDATE_TRENDING = "update_trending"
+        const val UPDATE_SEARCH = "update_search"
 
         private val JOB_ID = Random().nextInt()
         @JvmStatic fun enqueueWork(context: Context, work: Intent) {
             enqueueWork(context, GIPHYService::class.java, JOB_ID, work)
         }
     }
+    private val apiKey by lazy { resources.getString(R.string.api_giphy_key) }
 
     override fun onHandleWork(intent: Intent) {
-        if (intent.action.equals(ACTION_GET_TRENDING)) {
-            if (API_get_trending()) {
-                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(UPDATE_TRENDING))
+        when(intent.action) {
+            ACTION_GET_TRENDING -> {
+                if (API_get_trending()) {
+                    LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(UPDATE_TRENDING))
+                }
             }
-        }
-        if (intent.action.equals(ACTION_GET_SEARCH)) {
-            if (API_get_search(intent.getStringExtra("terms"), intent.getIntExtra("offset", 0))) {
-                val updateSearch = Intent(UPDATE_SEARCH)
-                updateSearch.putExtra("terms", intent.getStringExtra("terms"))
-                updateSearch.putExtra("offset", intent.getIntExtra("offset", 0))
-                LocalBroadcastManager.getInstance(this).sendBroadcast(updateSearch)
+            ACTION_GET_SEARCH -> {
+                if (API_get_search(intent.getStringExtra("terms"), intent.getIntExtra("offset", 0))) {
+                    val updateSearch = Intent(UPDATE_SEARCH)
+                    updateSearch.putExtra("terms", intent.getStringExtra("terms"))
+                    updateSearch.putExtra("offset", intent.getIntExtra("offset", 0))
+                    LocalBroadcastManager.getInstance(this).sendBroadcast(updateSearch)
+                }
             }
         }
     }
@@ -65,9 +69,9 @@ class GIPHYService : JobIntentService() {
             if (!response.isSuccessful) throw IOException(String.format("Unexpected code: %s", response))
             json = JSONObject(response.body()!!.string())
         } catch (err: JSONException) {
-            err.printStackTrace()
+            if (BuildConfig.DEBUG) err.printStackTrace()
         } catch (err: IOException) {
-            err.printStackTrace()
+            if (BuildConfig.DEBUG) err.printStackTrace()
         }
 
         if (json != null) {
@@ -83,7 +87,7 @@ class GIPHYService : JobIntentService() {
                 }
                 bReturn = true
             } catch (err: JSONException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             } finally {
                 db.close()
             }
@@ -94,10 +98,10 @@ class GIPHYService : JobIntentService() {
 
     private fun API_get_search(terms: String, offset: Int): Boolean {
         var bReturn = false
-        val endPoint = String.format("/search?api_key=%s&q=%s&limit=%s&offset=%s", resources.getString(R.string.api_giphy_key), terms, PAGESIZE_SEARCH, offset)
+        val url = "${getString(R.string.api_giphy)}/search?api_key=$apiKey&q=$terms&limit=$PAGESIZE_SEARCH&offset=$offset"
         val httpClient = OkHttpClient()
         val request = Request.Builder()
-                .url(String.format("%s%s", getString(R.string.api_giphy), endPoint))
+                .url(url)
                 .build()
 
         var json: JSONObject? = null
@@ -106,9 +110,9 @@ class GIPHYService : JobIntentService() {
             if (!response.isSuccessful) throw IOException(String.format("Unexpected code: %s", response))
             json = JSONObject(response.body()!!.string())
         } catch (err: JSONException) {
-            err.printStackTrace()
+            if (BuildConfig.DEBUG) err.printStackTrace()
         } catch (err: IOException) {
-            err.printStackTrace()
+            if (BuildConfig.DEBUG) err.printStackTrace()
         }
 
         if (json != null) {
@@ -125,7 +129,7 @@ class GIPHYService : JobIntentService() {
                 orm.deleteSearchLinksAfter(offset + jsonData.length())
                 bReturn = true
             } catch (err: JSONException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             } finally {
                 db.close()
             }

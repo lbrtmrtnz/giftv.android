@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:minWidth="1000dp">
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools">
     <LinearLayout android:id="@+id/container_top"
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -16,61 +11,59 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/horizontal_2x"
-            android:paddingRight="@dimen/horizontal_2x"
+            android:paddingLeft="@dimen/horizontal"
+            android:paddingRight="1dp"
+            android:paddingStart="@dimen/horizontal"
+            android:paddingEnd="1dp"
             android:layout_marginBottom="@dimen/vertical_2x">
             <LinearLayout android:id="@+id/container_title"
                 android:orientation="vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true">
-                <TextView
+                <android.support.v7.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/vertical_2x"
+                    android:paddingTop="@dimen/vertical"
                     android:textAppearance="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
                     android:text="@string/dialog_about_title"/>
-                <TextView android:id="@+id/text_build"
+                <android.support.v7.widget.AppCompatTextView android:id="@+id/text_build"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/text_micro"
                     android:textColor="@color/cardview_dark_background"
                     tools:text="BUILD x.x.x" />
             </LinearLayout>
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <android.support.v7.widget.AppCompatImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_alignTop="@id/container_title"
                 android:layout_alignBottom="@id/container_title"
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@id/container_title"
                 android:layout_alignParentRight="true"
                 android:layout_toEndOf="@id/container_title"
-                android:layout_alignParentEnd="true">
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="fitEnd"
-                    android:adjustViewBounds="true"
-                    android:src="@drawable/powered_by_giphy"/>
-            </FrameLayout>
+                android:layout_alignParentEnd="true"
+                android:layout_marginLeft="@dimen/horizontal"
+                android:layout_marginRight="0dp"
+                android:layout_marginStart="@dimen/horizontal"
+                android:layout_marginEnd="0dp"
+                android:layout_marginTop="@dimen/vertical_small"
+                android:scaleType="fitEnd"
+                android:adjustViewBounds="true"
+                android:src="@drawable/powered_by_giphy"/>
         </RelativeLayout>
 
-        <FrameLayout
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/horizontal_2x"
-            android:paddingRight="@dimen/horizontal_2x"
+            android:paddingLeft="@dimen/horizontal"
+            android:paddingRight="@dimen/horizontal"
             android:paddingTop="@dimen/vertical"
-            android:paddingBottom="@dimen/vertical_2x">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/text_medium"
-                android:text="@string/dialog_about_desc"/>
-        </FrameLayout>
+            android:paddingBottom="@dimen/vertical_2x"
+            android:textSize="@dimen/text_medium"
+            android:text="@string/dialog_about_desc"/>
     </LinearLayout>
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -80,226 +73,203 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/vertical_2x">
-            <FrameLayout
+            <LinearLayout android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/horizontal_2x"
-                android:paddingRight="@dimen/horizontal_2x"
+                android:paddingLeft="@dimen/horizontal"
+                android:paddingRight="@dimen/horizontal"
                 android:paddingTop="@dimen/vertical"
-                android:paddingBottom="@dimen/vertical_2x">
-                <LinearLayout android:orientation="horizontal"
-                    android:layout_width="match_parent"
+                android:paddingBottom="@dimen/vertical"
+                android:weightSum="1.0"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <FrameLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:weightSum="1.0"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
+                    android:layout_weight="0.3"
+                    android:layout_gravity="center">
                     <FrameLayout
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.5"
+                        android:background="@color/colorPrimary"
+                        android:gravity="center"
                         android:layout_gravity="center">
-                        <FrameLayout
+                        <android.support.v7.widget.AppCompatImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="@color/colorPrimary"
                             android:gravity="center"
-                            android:layout_gravity="center">
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:layout_gravity="center"
-                                android:padding="@dimen/horizontal"
-                                android:src="@drawable/ic_live_tv" />
-                        </FrameLayout>
-
-                    </FrameLayout>
-                    <FrameLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.5">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="@dimen/text_small"
-                            android:text="@string/dialog_about_create_giftv" />
-                    </FrameLayout>
-                </LinearLayout>
-            </FrameLayout>
-
-
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/horizontal_2x"
-                android:paddingRight="@dimen/horizontal_2x"
-                android:paddingTop="@dimen/vertical"
-                android:paddingBottom="@dimen/vertical">
-                <LinearLayout android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:weightSum="1.0"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
-                    <FrameLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.5"
-                        android:layout_gravity="center">
-                        <FrameLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@color/colorAccent"
-                            android:gravity="center"
-                            android:layout_gravity="center">
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:layout_gravity="center"
-                                android:padding="@dimen/horizontal"
-                                android:src="@drawable/ic_search" />
-                        </FrameLayout>
-                    </FrameLayout>
-                    <FrameLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.5">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="@dimen/text_small"
-                            android:text="@string/dialog_about_search" />
-                    </FrameLayout>
-                </LinearLayout>
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/horizontal_2x"
-                android:paddingRight="@dimen/horizontal_2x"
-                android:paddingTop="@dimen/vertical"
-                android:paddingBottom="@dimen/vertical">
-                <LinearLayout android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:weightSum="1.0"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
-                    <FrameLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.5"
-                        android:padding="@dimen/horizontal">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="@dimen/text_medium"
-                            android:textColor="@color/colorAccent"
-                            android:gravity="center"
-                            android:text="@string/dialog_about_action_single_tap" />
-                    </FrameLayout>
-                    <FrameLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.5">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="@dimen/text_small"
-                            android:text="@string/dialog_about_action_single_tap_desc" />
-                    </FrameLayout>
-                </LinearLayout>
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/horizontal_2x"
-                android:paddingRight="@dimen/horizontal_2x"
-                android:paddingTop="@dimen/vertical"
-                android:paddingBottom="@dimen/vertical">
-                <LinearLayout android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:weightSum="1.0"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
-                    <FrameLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.5">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="@dimen/text_medium"
-                            android:textColor="@color/colorAccent"
-                            android:gravity="center"
+                            android:layout_gravity="center"
                             android:padding="@dimen/horizontal"
-                            android:text="@string/dialog_about_action_press_and_hold" />
+                            android:src="@drawable/ic_live_tv" />
                     </FrameLayout>
-                    <FrameLayout
-                        android:layout_width="0dp"
+                </FrameLayout>
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.7">
+                    <android.support.v7.widget.AppCompatTextView
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.5">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="@dimen/text_small"
-                            android:text="@string/dialog_about_action_press_and_hold_desc" />
-                    </FrameLayout>
-                </LinearLayout>
-            </FrameLayout>
+                        android:textSize="@dimen/text_small"
+                        android:text="@string/dialog_about_create_giftv" />
+                </FrameLayout>
+            </LinearLayout>
 
-            <FrameLayout
+
+            <LinearLayout android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/horizontal_2x"
-                android:paddingRight="@dimen/horizontal_2x"
+                android:paddingLeft="@dimen/horizontal"
+                android:paddingRight="@dimen/horizontal"
                 android:paddingTop="@dimen/vertical"
-                android:paddingBottom="@dimen/vertical">
-                <LinearLayout android:orientation="horizontal"
-                    android:layout_width="match_parent"
+                android:paddingBottom="@dimen/vertical"
+                android:weightSum="1.0"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <FrameLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:weightSum="1.0"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
+                    android:layout_weight="0.3"
+                    android:layout_gravity="center">
                     <FrameLayout
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.5"
+                        android:background="@color/colorAccent"
+                        android:gravity="center"
                         android:layout_gravity="center">
-                        <FrameLayout
+                        <android.support.v7.widget.AppCompatImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="@color/colorPrimary"
                             android:gravity="center"
-                            android:layout_gravity="center">
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:layout_gravity="center"
-                                android:padding="@dimen/horizontal"
-                                android:src="@drawable/ic_send" />
-                            </FrameLayout>
+                            android:layout_gravity="center"
+                            android:padding="@dimen/horizontal"
+                            android:src="@drawable/ic_search" />
                     </FrameLayout>
-                    <FrameLayout
-                        android:layout_width="0dp"
+                </FrameLayout>
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.7">
+                    <android.support.v7.widget.AppCompatTextView
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.5">
-                        <TextView
-                            android:layout_width="match_parent"
+                        android:textSize="@dimen/text_small"
+                        android:text="@string/dialog_about_search" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <LinearLayout android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/horizontal"
+                android:paddingRight="@dimen/horizontal"
+                android:paddingTop="@dimen/vertical"
+                android:paddingBottom="@dimen/vertical"
+                android:weightSum="1.0"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3"
+                    android:padding="@dimen/horizontal">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_medium"
+                        android:textColor="@color/colorAccent"
+                        android:gravity="center"
+                        android:text="@string/dialog_about_action_single_tap" />
+                </FrameLayout>
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.7">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_small"
+                        android:text="@string/dialog_about_action_single_tap_desc" />
+                </FrameLayout>
+            </LinearLayout>
+
+
+            <LinearLayout android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/horizontal"
+                android:paddingRight="@dimen/horizontal"
+                android:paddingTop="@dimen/vertical"
+                android:paddingBottom="@dimen/vertical"
+                android:weightSum="1.0"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_medium"
+                        android:textColor="@color/colorAccent"
+                        android:gravity="center"
+                        android:padding="@dimen/horizontal"
+                        android:text="@string/dialog_about_action_press_and_hold" />
+                </FrameLayout>
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.7">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_small"
+                        android:text="@string/dialog_about_action_press_and_hold_desc" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <LinearLayout android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/horizontal"
+                android:paddingRight="@dimen/horizontal"
+                android:paddingTop="@dimen/vertical"
+                android:paddingBottom="@dimen/vertical"
+                android:weightSum="1.0"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3"
+                    android:layout_gravity="center">
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorPrimary"
+                        android:gravity="center"
+                        android:layout_gravity="center">
+                        <android.support.v7.widget.AppCompatImageView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/text_small"
-                            android:text="@string/dialog_about_action_send_desc" />
-                    </FrameLayout>
-                </LinearLayout>
-            </FrameLayout>
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            android:padding="@dimen/horizontal"
+                            android:src="@drawable/ic_send" />
+                        </FrameLayout>
+                </FrameLayout>
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.7">
+                    <android.support.v7.widget.AppCompatTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_small"
+                        android:text="@string/dialog_about_action_send_desc" />
+                </FrameLayout>
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
 </RelativeLayout>
-</FrameLayout>

@@ -10,16 +10,16 @@ import com.icenerd.giftv.data.model.StatusModel
 
 class StatusORM(db: SQLiteDatabase) : ORM<StatusModel>(db, TABLE) {
     companion object {
-        private val TAG = "StatusORM"
-        val TABLE = "status"
-        val COL_UUID = "uuid"
-        val COL_CHANNEL_TYPE = "channel_type"
-        val COL_CHANNEL_ID = "channel_id"
-        val COL_CREATED_ON = "created_on"
+        private const val TAG = "StatusORM"
+        const val TABLE = "status"
+        const val COL_UUID = "uuid"
+        const val COL_CHANNEL_TYPE = "channel_type"
+        const val COL_CHANNEL_ID = "channel_id"
+        const val COL_CREATED_ON = "created_on"
         /*--- CHANNEL_TYPE ---*/
-        val CHANNEL_OFF = 0
-        val CHANNEL_TWITCH = 1
-        val CHANNEL_GIPHY = 2
+        const val CHANNEL_OFF = 0
+        const val CHANNEL_TWITCH = 1
+        const val CHANNEL_GIPHY = 2
     }
 
     override fun build(cursor: Cursor): StatusModel { return StatusModel(cursor) }

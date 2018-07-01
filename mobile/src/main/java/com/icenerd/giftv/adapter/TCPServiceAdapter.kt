@@ -6,14 +6,13 @@ import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 
 import com.icenerd.adapter.CursorRecyclerAdapter
 import com.icenerd.giftv.R
 import com.icenerd.giftv.data.model.TCPServiceModel
 
-class TCPServiceAdapter(private val mOnClickListener: OnItemClickListener) : CursorRecyclerAdapter<TCPServiceAdapter.ViewHolder>(null) {
+class TCPServiceAdapter(private val clickListener: OnItemClickListener) : CursorRecyclerAdapter<TCPServiceAdapter.ViewHolder>(null) {
     interface OnItemClickListener {
         fun onItemClick(model: TCPServiceModel)
     }
@@ -23,26 +22,20 @@ class TCPServiceAdapter(private val mOnClickListener: OnItemClickListener) : Cur
     }
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val model = TCPServiceModel(getItem(position)!!)
-        holder.bind(model, mOnClickListener)
-        if (Build.VERSION.SDK_INT >= 24) {
-            holder.txtName.text = Html.fromHtml(model.name, Html.FROM_HTML_MODE_COMPACT).toString()
-        } else {
-            @Suppress("DEPRECATION")
-            holder.txtName.text = Html.fromHtml(model.name).toString()
-        }
+        holder.bind(model, clickListener)
     }
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var item_status: View
-        var imgIcon: ImageView
-        var txtName: TextView
-
-        init {
-            item_status = itemView.findViewById(R.id.item_status)
-            imgIcon = itemView.findViewById(R.id.item_status_icon) as ImageView
-            txtName = itemView.findViewById(R.id.item_status_title) as TextView
-        }
+        //var itemStatus = itemView.findViewById<View>(R.id.item_status)
+        //var imgIcon = itemView.findViewById<View>(R.id.item_status_icon)
+        private val txtName: TextView = itemView.findViewById(R.id.item_status_title)
 
         fun bind(model: TCPServiceModel, listener: OnItemClickListener) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                txtName.text = Html.fromHtml(model.name, Html.FROM_HTML_MODE_COMPACT).toString()
+            } else {
+                @Suppress("DEPRECATION")
+                txtName.text = Html.fromHtml(model.name).toString()
+            }
             itemView.setOnClickListener { listener.onItemClick(model) }
         }
     }

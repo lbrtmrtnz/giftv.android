@@ -14,10 +14,9 @@ import java.security.NoSuchAlgorithmException
 import javax.crypto.NoSuchPaddingException
 import javax.crypto.spec.SecretKeySpec
 
-class ServerThread(private val mSecretKeySpec: SecretKeySpec, private val mServerSocket: ServerSocket, private val mHandler: Handler) : Runnable {
+class ServerThread(private val secretKeySpec: SecretKeySpec, private val serverSocket: ServerSocket, private val handler: Handler) : Runnable {
     companion object {
-        private val TAG = "ServerThread"
-
+        private const val TAG = "ServerThread"
         var STATE: StatusModel? = null
     }
 
@@ -36,30 +35,31 @@ class ServerThread(private val mSecretKeySpec: SecretKeySpec, private val mServe
         while (isRunning) {
             try {
 
-                val socket = mServerSocket.accept()
+                val socket = serverSocket.accept()
                 if (BuildConfig.DEBUG) Log.d(TAG, "Connection accepted")
 
-                val connectionThread = ClientThread(mSecretKeySpec, socket, mHandler)
+                val connectionThread = ClientThread(secretKeySpec, socket, handler)
                 Thread(connectionThread).start()
 
             } catch (err: IOException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             } catch (err: NoSuchAlgorithmException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             } catch (err: NoSuchPaddingException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             }
 
         }
-        if (!mServerSocket.isClosed) {
+        if (!serverSocket.isClosed) {
             try {
 
-                mServerSocket.close()
+                serverSocket.close()
                 if (BuildConfig.DEBUG) Log.d(TAG, "Socket closed")
 
             } catch (err: IOException) {
-                err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             }
+
         }
     }
 }
