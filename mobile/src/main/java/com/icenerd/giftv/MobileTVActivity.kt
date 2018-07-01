@@ -38,58 +38,25 @@ import javax.crypto.spec.SecretKeySpec
 
 class MobileTVActivity : AppCompatActivity() {
     companion object {
-        private val TAG = "MobileTV"
-
-        val BATCH_SIZE = 20
-
-        val EXTRA_NAME = "mobile_tv_name"
-        val SIGNAL_CHANGE_CHANNEL = "signal_change_channel"
-
-        private val SIZE_LIMIT_BYTES: Long = 4000000
+        private const val TAG = "MobileTV"
+        const val BATCH_SIZE = 20
+        const val EXTRA_NAME = "mobile_tv_name"
+        const val SIGNAL_CHANGE_CHANNEL = "signal_change_channel"
+        private const val SIZE_LIMIT_BYTES: Long = 4000000
     }
+    private lateinit var gifImageView: GifImageView
 
-    private var mNetworkService: Server? = null
-    private var mGifImageView: GifImageView? = null
-    private var mRequestQueue: RequestQueue? = null
-    private var mGifLoader: GifLoader? = null
-    private var mBroadcastManager: LocalBroadcastManager? = null
-    private val mObserver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action.equals(SIGNAL_CHANGE_CHANNEL)) {
-                if (BuildConfig.DEBUG) Log.d(TAG, SIGNAL_CHANGE_CHANNEL)
-                val db = GIFTVDB(context).readableDatabase
-                val statusORM = StatusORM(db)
-                val updateStatus = statusORM.findWhere("1 = 1 ORDER BY ${StatusORM.COL_CREATED_ON} desc limit 1")
-                ServerThread.STATE = updateStatus
-                db.close()
-
-                if (updateStatus == null) {
-                    Log.w(TAG, "STATUS NOT FOUND")
-                } else {
-                    if (BuildConfig.DEBUG) {
-                        try {
-                            Log.d(TAG, "Status: " + updateStatus.getJSONObject().toString())
-                        } catch (err: JSONException) {
-                            err.printStackTrace()
-                        }
-
-                    }
-                    when (updateStatus.channel_type) {
-                        StatusORM.CHANNEL_GIPHY -> {
-                            if (BuildConfig.DEBUG) Log.d(TAG, "GOT A GIPHY!")
-                            TASK_load_gif()
-                        }
-                        else -> {
-                        }
-                    }
-                }
-            }
+    private var networkServer: Server? = null
+    private var requestQueue: RequestQueue? = null
+    private var gifLoader: GifLoader? = null
+    private var listGIF: List<GifModel> = ArrayList()
+    private var timer: Timer? = null
+        set(value) {
+            value?.cancel()
+            value?.purge()
+            field = value
         }
-    }
-
-    private var mGifs: List<GifModel> = ArrayList()
-    private var mTimer: Timer? = null
-    private var mNextPosition = 0
+    private var nextPosition = 0
 
     private val currentSSID: String?
         get() {
@@ -106,26 +73,58 @@ class MobileTVActivity : AppCompatActivity() {
             return ssid
         }
 
+    private var localBroadcastManager: LocalBroadcastManager? = null
+    private val localBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == SIGNAL_CHANGE_CHANNEL) {
+                if (BuildConfig.DEBUG) Log.d(TAG, SIGNAL_CHANGE_CHANNEL)
+                val db = GIFTVDB(context).readableDatabase
+                val statusORM = StatusORM(db)
+                val updateStatus = statusORM.findWhere("1 = 1 ORDER BY ${StatusORM.COL_CREATED_ON} desc limit 1")
+                ServerThread.STATE = updateStatus
+                db.close()
+
+                if (updateStatus == null) {
+                    Log.w(TAG, "STATUS NOT FOUND")
+                } else {
+                    if (BuildConfig.DEBUG) {
+                        try {
+                            Log.d(TAG, "Status: ${updateStatus.getJSONObject().toString(1)}")
+                        } catch (err: JSONException) {
+                            err.printStackTrace()
+                        }
+
+                    }
+                    when (updateStatus.channel_type) {
+                        StatusORM.CHANNEL_GIPHY -> {
+                            if (BuildConfig.DEBUG) Log.d(TAG, "GOT A GIPHY!")
+                            taskGIFLoad()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mobile_tv)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-        mGifImageView = findViewById(R.id.gif) as GifImageView
-
-        val ssid = currentSSID
-        if (ssid != null && !ssid.isEmpty()) {
-            (findViewById(R.id.text_ssid) as TextView).text = ssid
-        } else {
-            (findViewById(R.id.text_ssid) as TextView).setText(R.string.tv_ssid_not_found)
-        }
+        gifImageView = findViewById(R.id.gif)
     }
 
     override fun onStart() {
         super.onStart()
-        mBroadcastManager = LocalBroadcastManager.getInstance(this)
-        mRequestQueue = Volley.newRequestQueue(this)
-        mGifLoader = GifLoader(mRequestQueue!!, object : GifLoader.GifCache {
+        val ssid = currentSSID
+        if (ssid != null && !ssid.isEmpty()) {
+            findViewById<TextView>(R.id.text_ssid).text = ssid
+        } else {
+            findViewById<TextView>(R.id.text_ssid).setText(R.string.tv_ssid_not_found)
+        }
+
+        localBroadcastManager = LocalBroadcastManager.getInstance(this)
+        requestQueue = Volley.newRequestQueue(this)
+        gifLoader = GifLoader(requestQueue!!, object : GifLoader.GifCache {
             private val mCache = LruCache<String, GifDrawable>(BATCH_SIZE)
             override fun putGif(url: String, gif: GifDrawable) {
                 mCache.put(url, gif)
@@ -143,15 +142,15 @@ class MobileTVActivity : AppCompatActivity() {
         if (nsName == null || nsName.isEmpty()) {
             finish()
         } else {
-            (findViewById(R.id.text_tv_name) as TextView).text = nsName
+            findViewById<TextView>(R.id.text_tv_name).text = nsName
             if (nsType == null || nsType.isEmpty()) nsType = getString(R.string.network_service_type)
 
-            mNetworkService = Server(
+            networkServer = Server(
                     nsdMan,
                     nsName,
                     nsType!!
             )
-            mNetworkService?.handler = ClientMessageHandler(this)
+            networkServer?.handler = ClientMessageHandler(this)
         }
     }
 
@@ -159,35 +158,27 @@ class MobileTVActivity : AppCompatActivity() {
         super.onResume()
         val intentFilter = IntentFilter()
         intentFilter.addAction(SIGNAL_CHANGE_CHANNEL)
-        mBroadcastManager!!.registerReceiver(mObserver, intentFilter)
-        if (mNetworkService != null) {
+        localBroadcastManager?.registerReceiver(localBroadcastReceiver, intentFilter)
+        if (networkServer != null) {
             ServerThread.STATE = StatusModel(Installation.getUUID(this)!!)
-            mNetworkService!!.startServer(SecretKeySpec(Base64.decode(getString(R.string.network_service_secret), Base64.NO_CLOSE or Base64.NO_WRAP), "AES"))
+            networkServer?.startServer(SecretKeySpec(Base64.decode(getString(R.string.network_service_secret), Base64.NO_CLOSE or Base64.NO_WRAP), "AES"))
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if (mTimer != null) {
-            mTimer!!.cancel()
-            mTimer!!.purge()
-            mTimer = null
-        }
-        mBroadcastManager!!.unregisterReceiver(mObserver)
-        if (mNetworkService != null) {
-            mNetworkService!!.stopServer()
-        }
+        timer = null
+        localBroadcastManager?.unregisterReceiver(localBroadcastReceiver)
+        networkServer?.stopServer()
     }
 
     override fun onStop() {
         super.onStop()
-        //mNetworkService!!.setHandler(null)
-        mNetworkService = null
+        networkServer = null
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-
         if (hasFocus) {
             if (Build.VERSION.SDK_INT >= 19) {
                 window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -206,67 +197,61 @@ class MobileTVActivity : AppCompatActivity() {
         }
     }
 
-    private fun TASK_load_gif() {
+    private fun taskGIFLoad() {
         val db = GIFTVDB(this@MobileTVActivity).readableDatabase
         val orm = GifORM(db)
-        mGifs = orm.tv_gif_list()
-        if (mNextPosition >= mGifs.size) mNextPosition = 0
+        listGIF = orm.tv_gif_list()
+        if (nextPosition >= listGIF.size) nextPosition = 0
 
-        if (mGifs.size == 0) {
+        if (listGIF.isEmpty()) {
             if (BuildConfig.DEBUG) Log.d(TAG, "No Gifs found!")
             findViewById<View>(R.id.frame_gif).visibility = View.INVISIBLE
-            if (mTimer != null) {
-                mTimer!!.cancel()
-                mTimer!!.purge()
-                mTimer = null
-            }
+            timer = null
         } else {
-            if (BuildConfig.DEBUG) Log.d(TAG, mGifs.size.toString() + " Gifs found!")
+            if (BuildConfig.DEBUG) Log.d(TAG, listGIF.size.toString() + " Gifs found!")
             findViewById<View>(R.id.frame_gif).visibility = View.VISIBLE
-            if (mTimer == null) {
-                mTimer = Timer()
-                mTimer!!.scheduleAtFixedRate(object : TimerTask() {
-                    override fun run() {
-                        runOnUiThread { gif_rotation() }
-                    }
-                }, 0, 3000)
-            }
+            timer = Timer()
+            timer?.scheduleAtFixedRate(object : TimerTask() {
+                override fun run() {
+                    runOnUiThread { gifNext() }
+                }
+            }, 0, 3000)
         }
     }
 
-    private fun gif_rotation() {
-        if (mNextPosition >= mGifs.size) {
-            mNextPosition = 0
-            TASK_load_gif()
-        } else if (mGifs.size > 0) {
-            val model = mGifs[mNextPosition]
-            val container = mGifLoader!![if (model.size < SIZE_LIMIT_BYTES) model.original!! else model.downsized!!, object : GifLoader.GifListener {
+    private fun gifNext() {
+        if (nextPosition >= listGIF.size) {
+            nextPosition = 0
+            taskGIFLoad()
+        } else if (listGIF.isEmpty()) {
+            val model = listGIF[nextPosition]
+            val container = gifLoader!![if (model.size < SIZE_LIMIT_BYTES) model.original!! else model.downsized!!, object : GifLoader.GifListener {
                 override fun onResponse(response: GifLoader.GifContainer, isImmediate: Boolean) {
-                    LOAD_gif(response)
+                    gifLoad(response)
                 }
 
                 override fun onErrorResponse(error: VolleyError) {}
             }]
-            LOAD_gif(container)
+            gifLoad(container)
 
-            var i = mNextPosition + 1
-            while (i < mNextPosition + BATCH_SIZE / 2 && i < mGifs.size) {
-                val preModel = mGifs[i]
-                mGifLoader!![if (preModel.size < SIZE_LIMIT_BYTES) preModel.original!! else preModel.downsized!!, null]
+            var i = nextPosition + 1
+            while (i < nextPosition + BATCH_SIZE / 2 && i < listGIF.size) {
+                val preModel = listGIF[i]
+                gifLoader!![if (preModel.size < SIZE_LIMIT_BYTES) preModel.original!! else preModel.downsized!!, null]
                 i++
             }
         }
-        mNextPosition++
+        nextPosition++
     }
 
-    private fun LOAD_gif(container: GifLoader.GifContainer) {
+    private fun gifLoad(container: GifLoader.GifContainer) {
         val drawable = container.gif
         if (drawable == null) {
-            mGifImageView!!.visibility = View.INVISIBLE
+            gifImageView.visibility = View.INVISIBLE
         } else {
-            mGifImageView!!.setImageDrawable(drawable)
-            mGifImageView!!.visibility = View.VISIBLE
-            if (!drawable.isPlaying()) drawable.start()
+            gifImageView.setImageDrawable(drawable)
+            gifImageView.visibility = View.VISIBLE
+            if (!drawable.isPlaying) drawable.start()
         }
     }
 }
