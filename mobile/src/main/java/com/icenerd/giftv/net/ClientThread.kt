@@ -98,7 +98,7 @@ constructor(private val secretKeySpec: SecretKeySpec, private val socket: Socket
                             json.put(InstallationORM.COL_BRAND, Build.BRAND)
                             json.put(InstallationORM.COL_MANUFACTURER, Build.MANUFACTURER)
                             json.put(InstallationORM.COL_MODEL, Build.MODEL)
-                            json.put(InstallationORM.COL_SERIAL, Build.SERIAL)
+                            json.put(InstallationORM.COL_SERIAL, BuildConfig.BUILD_TIME)
                             json.put(InstallationORM.COL_SDK_INT, Build.VERSION.SDK_INT)
 
                             if (cipher != null) {
