@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 def minutesSinceEpoch = (new Date()).getTime()/(1000 * 60)
 Properties keyRing = new Properties()
-keyRing.load(new FileInputStream(rootProject.file('android.giftv.keyring')))
+keyRing.load(new FileInputStream(rootProject.file('android.giftv.keyring.example')))
 android {
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
@@ -10,8 +10,8 @@ android {
         applicationId "com.icenerd.giftv"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 20
-        versionName "2.0"
+        versionCode 22
+        versionName "2.1"
         proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         resValue "string", "network_service_type", "_giftv._tcp."
         resValue "string", "api_giphy", "http://api.giphy.com/v1/gifs"
@@ -39,14 +39,14 @@ android {
     }
 }
 dependencies {
-    implementation 'com.android.support:leanback-v17:27.1.1'
-    implementation 'com.android.support:support-v4:27.1.1'
-    implementation 'com.android.support:design:27.1.1'
-    implementation 'com.android.support:cardview-v7:27.1.1'
+    implementation "com.android.support:leanback-v17:$vSupport"
+    implementation "com.android.support:support-v4:$vSupport"
+    implementation "com.android.support:design:$vSupport"
+    implementation "com.android.support:cardview-v7:$vSupport"
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     implementation 'com.android.volley:volley:1.1.0'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.12'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$vKotlin"
 }
 repositories {
     mavenCentral()
