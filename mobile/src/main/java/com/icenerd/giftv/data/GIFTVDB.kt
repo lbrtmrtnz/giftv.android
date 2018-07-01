@@ -11,11 +11,11 @@ import com.icenerd.giphy.data.orm.GifORM
 
 class GIFTVDB(ctx: Context) : SQLiteOpenHelper(ctx, NAME, null, VERSION) {
     companion object {
-        private val NAME = "com.icenerd.giftv"
-        private val VERSION = 1
+        private const val NAME = "com.icenerd.giftv"
+        private const val VERSION = 1
 
-        val TABLE_LINK_SEARCH_GIF = "search_gif"
-        val TABLE_LINK_TV_GIF = "tv_gif"
+        const val TABLE_LINK_SEARCH_GIF = "search_gif"
+        const val TABLE_LINK_TV_GIF = "tv_gif"
     }
     override fun onCreate(database: SQLiteDatabase) {
         if (BuildConfig.DEBUG) Log.d(NAME, "onCreate()")
@@ -84,9 +84,9 @@ class GIFTVDB(ctx: Context) : SQLiteOpenHelper(ctx, NAME, null, VERSION) {
 
         database.execSQL("DROP TABLE IF EXISTS $TABLE_LINK_SEARCH_GIF")
         database.execSQL("DROP TABLE IF EXISTS $TABLE_LINK_TV_GIF")
-        database.execSQL("DROP TABLE IF EXISTS " + TCPServiceORM.TABLE)
-        database.execSQL("DROP TABLE IF EXISTS " + StatusORM.TABLE)
-        database.execSQL("DROP TABLE IF EXISTS " + GifORM.TABLE)
+        database.execSQL("DROP TABLE IF EXISTS $TCPServiceORM.TABLE")
+        database.execSQL("DROP TABLE IF EXISTS $StatusORM.TABLE")
+        database.execSQL("DROP TABLE IF EXISTS $GifORM.TABLE")
         onCreate(database)
     }
 }

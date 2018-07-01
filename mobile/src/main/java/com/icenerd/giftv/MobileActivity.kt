@@ -101,7 +101,7 @@ class MobileActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
         recyclerView?.addOnScrollListener(loadMoreListener)
 
         gifAdapter = GifAdapter()
-        gifAdapter?.mListener = object: GifAdapter.OnItemClickListener {
+        gifAdapter?.actionListener = object: GifAdapter.ActionListener {
             override fun onItemClick(model: GifModel) {
                 if (BuildConfig.DEBUG) Log.d(TAG, "item clicked")
                 if (actionModeCurrent == null) {
@@ -111,13 +111,11 @@ class MobileActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
                     actionModeCurrent?.title = "${count} GIF selected"
                 }
             }
-        }
-        gifAdapter?.mLongListener = object: GifAdapter.OnItemLongClickListener {
             override fun onItemLongClick(model: GifModel) {
                 if (BuildConfig.DEBUG) Log.d(TAG, "item long clicked")
                 if (actionModeCurrent == null) {
                     startSupportActionMode(this@MobileActivity)
-                    gifAdapter?.toggle_selection = true
+                    gifAdapter?.toggleSelection = true
                 } else {
                     // nothing to do
                 }
