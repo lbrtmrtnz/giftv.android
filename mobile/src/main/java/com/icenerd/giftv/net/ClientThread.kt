@@ -172,7 +172,6 @@ constructor(private val secretKeySpec: SecretKeySpec, private val socket: Socket
                 }
 
             }
-
         } catch (err: IOException) {
             if(BuildConfig.DEBUG) err.printStackTrace()
         } finally {

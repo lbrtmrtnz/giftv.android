@@ -1,6 +1,5 @@
 package com.icenerd.giftv.data.model
 
-
 import android.content.ContentValues
 import android.database.Cursor
 

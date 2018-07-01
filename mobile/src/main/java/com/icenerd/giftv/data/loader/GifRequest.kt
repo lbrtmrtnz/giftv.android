@@ -26,7 +26,6 @@ class GifRequest(url: String, private val mListener: Response.Listener<GifDrawab
                 VolleyLog.e("Caught OOM for ${response.data.size} byte gif, url=$url")
                 return Response.error(ParseError(e))
             }
-
         }
     }
     private fun doParse(response: NetworkResponse): Response<GifDrawable> {

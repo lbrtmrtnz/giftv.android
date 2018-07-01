@@ -17,9 +17,9 @@
     <string name="dialog_about_desc">GIFs here, GIFs there, GIFs everywhere. It\'s GIFTV! Here\'s what you can dooooo…</string>
     <string name="dialog_about_create_giftv">Turn this device into a GIFTV.</string>
     <string name="dialog_about_search">Search for the GIFs!</string>
-    <string name="dialog_about_action_single_tap">SINGLE TAP</string>
+    <string name="dialog_about_action_single_tap">Tap</string>
     <string name="dialog_about_action_single_tap_desc">Preview GIF. In SELECT mode, GIF selection is toggled.</string>
-    <string name="dialog_about_action_press_and_hold">PRESS AND HOLD</string>
+    <string name="dialog_about_action_press_and_hold">Long Press</string>
     <string name="dialog_about_action_press_and_hold_desc">Selects the GIF and starts SELECT mode.</string>
     <string name="dialog_about_action_send_desc">Send all selected GIFs to a GIFTV. They will playback randomly for 8 something hours or so…</string>
     <string name="activity_mobile_tv_name">TV Name</string>

@@ -38,7 +38,7 @@ import javax.crypto.spec.SecretKeySpec
 
 class MobileTVActivity : AppCompatActivity() {
     companion object {
-        private const val TAG = "MobileTV"
+        private const val TAG = "GIFTV"
         const val BATCH_SIZE = 20
         const val EXTRA_NAME = "mobile_tv_name"
         const val SIGNAL_CHANGE_CHANNEL = "signal_change_channel"
@@ -229,7 +229,6 @@ class MobileTVActivity : AppCompatActivity() {
                 override fun onResponse(response: GifLoader.GifContainer, isImmediate: Boolean) {
                     gifLoad(response)
                 }
-
                 override fun onErrorResponse(error: VolleyError) {}
             }]
             gifLoad(container)
@@ -237,7 +236,7 @@ class MobileTVActivity : AppCompatActivity() {
             var i = nextPosition + 1
             while (i < nextPosition + BATCH_SIZE / 2 && i < listGIF.size) {
                 val preModel = listGIF[i]
-                gifLoader!![if (preModel.size < SIZE_LIMIT_BYTES) preModel.original!! else preModel.downsized!!, null]
+                gifLoader!![if (preModel.size < SIZE_LIMIT_BYTES) preModel.original?:"" else preModel.downsized?:"", null]
                 i++
             }
         }

@@ -67,24 +67,26 @@ class DataService : JobIntentService() {
 
         }
         try {
-            if (intent.action.equals(ACTION_IDENTIFY)) {
-                if (BuildConfig.DEBUG) Log.d(TAG, ACTION_IDENTIFY)
-                val name = intent.getStringExtra("name")
-                val host = intent.getStringExtra("host")
-                val port = intent.getIntExtra("port", 0)
-                TCP_identify(name, host, port)
-            }
-            if (intent.action.equals(ACTION_SEND)) {
-                if (BuildConfig.DEBUG) Log.d(TAG, ACTION_SEND)
-                val host = intent.getStringExtra("host")
-                val port = intent.getIntExtra("port", 0)
-                val data = intent.getStringExtra("data")
-                TCP_send(host, port, data)
-            }
-            if (intent.action.equals(ACTION_LOST)) {
-                if (BuildConfig.DEBUG) Log.d(TAG, ACTION_LOST)
-                val name = intent.getStringExtra("name")
-                TCP_lost(name)
+            when(intent.action) {
+                ACTION_IDENTIFY -> {
+                    if (BuildConfig.DEBUG) Log.d(TAG, ACTION_IDENTIFY)
+                    val name = intent.getStringExtra("name")
+                    val host = intent.getStringExtra("host")
+                    val port = intent.getIntExtra("port", 0)
+                    TCP_identify(name, host, port)
+                }
+                ACTION_SEND -> {
+                    if (BuildConfig.DEBUG) Log.d(TAG, ACTION_SEND)
+                    val host = intent.getStringExtra("host")
+                    val port = intent.getIntExtra("port", 0)
+                    val data = intent.getStringExtra("data")
+                    TCP_send(host, port, data)
+                }
+                ACTION_LOST -> {
+                    if (BuildConfig.DEBUG) Log.d(TAG, ACTION_LOST)
+                    val name = intent.getStringExtra("name")
+                    TCP_lost(name)
+                }
             }
         } catch (err: Exception) {
             if (BuildConfig.DEBUG) err.printStackTrace()
@@ -158,11 +160,11 @@ class DataService : JobIntentService() {
                                 if (BuildConfig.DEBUG) Log.d("SIGNAL_IDENTIFY", data)
                             }
                         } catch (err: BadPaddingException) {
-                            err.printStackTrace()
+                            if (BuildConfig.DEBUG) err.printStackTrace()
                         } catch (err: IllegalBlockSizeException) {
-                            err.printStackTrace()
+                            if (BuildConfig.DEBUG) err.printStackTrace()
                         } catch (err: InvalidKeyException) {
-                            err.printStackTrace()
+                            if (BuildConfig.DEBUG) err.printStackTrace()
                         }
 
                         handleServiceInfo(JSONObject(data))

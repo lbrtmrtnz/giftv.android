@@ -11,8 +11,10 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/horizontal_2x"
-            android:paddingRight="@dimen/horizontal_2x"
+            android:paddingLeft="@dimen/horizontal"
+            android:paddingRight="1dp"
+            android:paddingStart="@dimen/horizontal"
+            android:paddingEnd="1dp"
             android:layout_marginBottom="@dimen/vertical_2x">
             <LinearLayout android:id="@+id/container_title"
                 android:orientation="vertical"
@@ -22,7 +24,7 @@
                 <android.support.v7.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/vertical_2x"
+                    android:paddingTop="@dimen/vertical"
                     android:textAppearance="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
                     android:text="@string/dialog_about_title"/>
                 <android.support.v7.widget.AppCompatTextView android:id="@+id/text_build"
@@ -42,6 +44,11 @@
                 android:layout_alignParentRight="true"
                 android:layout_toEndOf="@id/container_title"
                 android:layout_alignParentEnd="true"
+                android:layout_marginLeft="@dimen/horizontal"
+                android:layout_marginRight="0dp"
+                android:layout_marginStart="@dimen/horizontal"
+                android:layout_marginEnd="0dp"
+                android:layout_marginTop="@dimen/vertical_small"
                 android:scaleType="fitEnd"
                 android:adjustViewBounds="true"
                 android:src="@drawable/powered_by_giphy"/>
@@ -50,8 +57,8 @@
         <android.support.v7.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/horizontal_2x"
-            android:paddingRight="@dimen/horizontal_2x"
+            android:paddingLeft="@dimen/horizontal"
+            android:paddingRight="@dimen/horizontal"
             android:paddingTop="@dimen/vertical"
             android:paddingBottom="@dimen/vertical_2x"
             android:textSize="@dimen/text_medium"
@@ -69,17 +76,17 @@
             <LinearLayout android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/horizontal_2x"
-                android:paddingRight="@dimen/horizontal_2x"
+                android:paddingLeft="@dimen/horizontal"
+                android:paddingRight="@dimen/horizontal"
                 android:paddingTop="@dimen/vertical"
-                android:paddingBottom="@dimen/vertical_2x"
+                android:paddingBottom="@dimen/vertical"
                 android:weightSum="1.0"
                 android:gravity="center_vertical"
                 android:baselineAligned="false">
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_weight="0.3"
                     android:layout_gravity="center">
                     <FrameLayout
                         android:layout_width="wrap_content"
@@ -99,7 +106,7 @@
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5">
+                    android:layout_weight="0.7">
                     <android.support.v7.widget.AppCompatTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -112,8 +119,8 @@
             <LinearLayout android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/horizontal_2x"
-                android:paddingRight="@dimen/horizontal_2x"
+                android:paddingLeft="@dimen/horizontal"
+                android:paddingRight="@dimen/horizontal"
                 android:paddingTop="@dimen/vertical"
                 android:paddingBottom="@dimen/vertical"
                 android:weightSum="1.0"
@@ -122,7 +129,7 @@
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_weight="0.3"
                     android:layout_gravity="center">
                     <FrameLayout
                         android:layout_width="wrap_content"
@@ -142,7 +149,7 @@
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5">
+                    android:layout_weight="0.7">
                     <android.support.v7.widget.AppCompatTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -154,8 +161,8 @@
             <LinearLayout android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/horizontal_2x"
-                android:paddingRight="@dimen/horizontal_2x"
+                android:paddingLeft="@dimen/horizontal"
+                android:paddingRight="@dimen/horizontal"
                 android:paddingTop="@dimen/vertical"
                 android:paddingBottom="@dimen/vertical"
                 android:weightSum="1.0"
@@ -164,7 +171,7 @@
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_weight="0.3"
                     android:padding="@dimen/horizontal">
                     <TextView
                         android:layout_width="match_parent"
@@ -177,7 +184,7 @@
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5">
+                    android:layout_weight="0.7">
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -190,8 +197,8 @@
             <LinearLayout android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/horizontal_2x"
-                android:paddingRight="@dimen/horizontal_2x"
+                android:paddingLeft="@dimen/horizontal"
+                android:paddingRight="@dimen/horizontal"
                 android:paddingTop="@dimen/vertical"
                 android:paddingBottom="@dimen/vertical"
                 android:weightSum="1.0"
@@ -200,7 +207,7 @@
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5">
+                    android:layout_weight="0.3">
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -213,7 +220,7 @@
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5">
+                    android:layout_weight="0.7">
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -225,8 +232,8 @@
             <LinearLayout android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/horizontal_2x"
-                android:paddingRight="@dimen/horizontal_2x"
+                android:paddingLeft="@dimen/horizontal"
+                android:paddingRight="@dimen/horizontal"
                 android:paddingTop="@dimen/vertical"
                 android:paddingBottom="@dimen/vertical"
                 android:weightSum="1.0"
@@ -235,7 +242,7 @@
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_weight="0.3"
                     android:layout_gravity="center">
                     <FrameLayout
                         android:layout_width="wrap_content"
@@ -255,7 +262,7 @@
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5">
+                    android:layout_weight="0.7">
                     <android.support.v7.widget.AppCompatTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

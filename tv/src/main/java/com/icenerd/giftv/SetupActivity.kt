@@ -29,12 +29,15 @@ class SetupActivity : Activity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setup)
+    }
+    override fun onStart() {
+        super.onStart()
         val sharedPref = getSharedPreferences("giftv", Context.MODE_PRIVATE)
-        (findViewById(R.id.input_name) as TextView).text = sharedPref.getString(GifTVActivity.EXTRA_NAME, generateRandomName())
-        (findViewById(R.id.text_ssid) as TextView).text = currentSSID
-        (findViewById(R.id.action_generate_random_name) as Button).setOnClickListener { (findViewById(R.id.input_name) as TextView).text = generateRandomName() }
-        (findViewById(R.id.action_start) as Button).setOnClickListener {
-            val name = (findViewById(R.id.input_name) as TextView).text.toString()
+        findViewById<TextView>(R.id.input_name).text = sharedPref.getString(GifTVActivity.EXTRA_NAME, generateRandomName())
+        findViewById<TextView>(R.id.text_ssid).text = currentSSID
+        findViewById<Button>(R.id.action_generate_random_name).setOnClickListener { findViewById<TextView>(R.id.input_name).text = generateRandomName() }
+        findViewById<Button>(R.id.action_start).setOnClickListener {
+            val name = findViewById<TextView>(R.id.input_name).text.toString()
             val editor = sharedPref.edit()
             editor.putString(GifTVActivity.EXTRA_NAME, name)
             editor.apply()

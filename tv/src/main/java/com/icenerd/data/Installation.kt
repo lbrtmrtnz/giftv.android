@@ -9,8 +9,7 @@ import java.util.*
 
 object Installation {
     private var uniqueID: String? = null
-    private val INSTALLATION = "INSTALLATION"
-    @JvmStatic
+    private const val INSTALLATION = "INSTALLATION"
     @Synchronized
     fun getUUID(context: Context): String? {
         if (uniqueID == null) {
