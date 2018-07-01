@@ -10,8 +10,8 @@ android {
         applicationId "com.icenerd.giftv"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 20
-        versionName "2.0"
+        versionCode 22
+        versionName "2.1"
         proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         resValue "string", "network_service_type", "_giftv._tcp."
         resValue "string", "api_giphy", "http://api.giphy.com/v1/gifs"
