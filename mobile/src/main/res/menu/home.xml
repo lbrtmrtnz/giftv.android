@@ -6,10 +6,10 @@
         android:id="@+id/action_local_activity"
         android:icon="@drawable/ic_live_tv"
         android:title="@string/menu_home_create_giftv"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_about"
         android:icon="@drawable/ic_help_outline"
         android:title="@string/menu_home_about"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 </menu>
