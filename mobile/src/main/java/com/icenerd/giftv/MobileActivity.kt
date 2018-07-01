@@ -59,13 +59,9 @@ class MobileActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
-        supportActionBar?.title = ""
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setIcon(R.drawable.ic_launcher_with_text)
 
-        inputSearch = findViewById(R.id.search_input) as EditText
-        recyclerView = findViewById(R.id.recycler_view) as RecyclerView
-
+        inputSearch = findViewById(R.id.search_input)
+        recyclerView = findViewById(R.id.recycler_view)
 
         loaderManager.initLoader(LOADER_ID_TRENDING, Bundle(), this).forceLoad()
     }
@@ -108,7 +104,7 @@ class MobileActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
                     // nothing to do
                 } else {
                     val count = gifAdapter?.selectedCount?:0
-                    actionModeCurrent?.title = "${count} GIF selected"
+                    actionModeCurrent?.title = "$count GIF selected"
                 }
             }
             override fun onItemLongClick(model: GifModel) {
@@ -168,13 +164,10 @@ class MobileActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
             }
 
             R.id.action_about -> {
-                run {
-                    val ft = supportFragmentManager.beginTransaction()
-
-                    abouDialog = AboutDialog()
-                    abouDialog?.show(ft, "about_dialog")
-                }
-                false
+                val ft = supportFragmentManager.beginTransaction()
+                abouDialog = AboutDialog()
+                abouDialog?.show(ft, "about_dialog")
+                true
             }
             else -> false
         }
