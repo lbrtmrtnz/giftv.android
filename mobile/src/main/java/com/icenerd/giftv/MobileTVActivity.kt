@@ -151,7 +151,7 @@ class MobileTVActivity : AppCompatActivity() {
                     nsName,
                     nsType!!
             )
-            mNetworkService!!.setHandler(ClientMessageHandler(this))
+            mNetworkService.handler = ClientMessageHandler(this)
         }
     }
 
