@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-def minutesSinceEpoch = (new Date()).getTime()/(1000 * 60)
+def minutesSinceEpoch = (new Date()).getTime()/(1000 * 60) as long
 Properties keyRing = new Properties()
 keyRing.load(new FileInputStream(rootProject.file('android.giftv.keyring.example')))
 android {
