@@ -1,27 +1,27 @@
 <resources>
-    <string name="app_name">GIFTV</string>
+    <string name="app_name">gifTV</string>
 
-    <string name="tv_wait">Download GIFTV on a mobile device to send this GIFTV some GIFs!</string>
-    <string name="tv_wait_title">Waiting for GIFs</string>
+    <string name="tv_wait">Download gifTV on a mobile device to send this gifTV some gifs!</string>
+    <string name="tv_wait_title">Waiting for gifs</string>
     <string name="tv_ssid_not_found">Not found</string>
-    <string name="menu_home_create_giftv">Create GIFTV</string>
+    <string name="menu_home_create_giftv">Create gifTV</string>
     <string name="menu_home_about">About</string>
-    <string name="search_for_gifs">Search for GIFs…</string>
-    <string name="dialog_send_channel_title">Send to a GIFTV over WiFi</string>
+    <string name="search_for_gifs">Search for gifs…</string>
+    <string name="dialog_send_channel_title">Send to a gifTV over WiFi</string>
     <string name="action_cancel">Cancel</string>
-    <string name="dialog_mobile_tv_name_title">Create a GIFTV</string>
-    <string name="dialog_mobile_tv_name_desc">This device will stay on, the screen will stay on and it will playback GIFs that are sent to it from other devices. GIFs will play until they \'expire\' which is like 8 hours or so.  Name it something cool or generate something that sounds hilarious.</string>
+    <string name="dialog_mobile_tv_name_title">Create a gifTV</string>
+    <string name="dialog_mobile_tv_name_desc">This device will stay on, the screen will stay on and it will playback gifs that are sent to it from other devices. gifs will play until they \'expire\' which is like 8 hours or so.  Name it something cool or generate something that sounds hilarious.</string>
     <string name="action_generate_random_name">RANDOM</string>
     <string name="action_ok">OK</string>
-    <string name="dialog_about_title">About GIFTV</string>
-    <string name="dialog_about_desc">GIFs here, GIFs there, GIFs everywhere. It\'s GIFTV! Here\'s what you can dooooo…</string>
-    <string name="dialog_about_create_giftv">Turn this device into a GIFTV.</string>
-    <string name="dialog_about_search">Search for the GIFs!</string>
+    <string name="dialog_about_title">About gifTV</string>
+    <string name="dialog_about_desc">gifs here, gifs there, gifs everywhere. It\'s gifTV! Here\'s what you can dooooo…</string>
+    <string name="dialog_about_create_giftv">Turn this device into a gifTV.</string>
+    <string name="dialog_about_search">Search for the gifs!</string>
     <string name="dialog_about_action_single_tap">Tap</string>
-    <string name="dialog_about_action_single_tap_desc">Preview GIF. In SELECT mode, GIF selection is toggled.</string>
+    <string name="dialog_about_action_single_tap_desc">Preview gif. In SELECT mode, gif selection is toggled.</string>
     <string name="dialog_about_action_press_and_hold">Long Press</string>
-    <string name="dialog_about_action_press_and_hold_desc">Selects the GIF and starts SELECT mode.</string>
-    <string name="dialog_about_action_send_desc">Send all selected GIFs to a GIFTV. They will playback randomly for 8 something hours or so…</string>
+    <string name="dialog_about_action_press_and_hold_desc">Selects the gif and starts SELECT mode.</string>
+    <string name="dialog_about_action_send_desc">Send all selected gifs to a gifTV. They will playback randomly for 8 something hours or so…</string>
     <string name="activity_mobile_tv_name">TV Name</string>
     <string name="action_send">Send</string>
 
