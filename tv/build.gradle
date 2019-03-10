@@ -5,7 +5,6 @@ Properties keyRing = new Properties()
 keyRing.load(new FileInputStream(rootProject.file('android.giftv.keyring.example')))
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "com.icenerd.giftv"
         minSdkVersion 21
@@ -36,6 +35,10 @@ android {
             buildConfigField("String", "BUILD_TIME", "\"${minutesSinceEpoch}\"")
             resValue("string", "build_time", "${minutesSinceEpoch}")
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 dependencies {
