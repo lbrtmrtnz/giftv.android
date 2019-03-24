@@ -13,7 +13,7 @@ android {
         versionName "2.1"
         proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         resValue "string", "network_service_type", "_giftv._tcp."
-        resValue "string", "api_giphy", "http://api.giphy.com/v1/gifs"
+        resValue "string", "api_giphy", "https://api.giphy.com/v1/gifs"
         resValue "string", "network_service_secret", keyRing["network_service_secret"]
         resValue "string", "api_giphy_key", keyRing["api_giphy_key"]
     }

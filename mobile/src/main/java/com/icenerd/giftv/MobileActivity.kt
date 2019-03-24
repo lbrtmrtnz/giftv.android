@@ -1,7 +1,9 @@
 package com.icenerd.giftv
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.database.Cursor
 import android.os.Build
 import android.os.Bundle
@@ -17,10 +19,12 @@ import androidx.appcompat.view.ActionMode
 import androidx.core.content.res.ResourcesCompat
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.Loader
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.icenerd.adapter.RecyclerPageListener
+import com.icenerd.giftv.data.GIFTVDB
 import com.icenerd.giftv.data.loader.GIPHYSearchLoader
 import com.icenerd.giftv.data.loader.GIPHYTrendingLoader
 import com.icenerd.giftv.data.model.TCPServiceModel
@@ -72,6 +76,20 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
             }
         }
     }
+    private val localBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            when (intent.action) {
+                GIPHYService.UPDATE_TRENDING -> {
+                    val cursor = GifORM(GIFTVDB(context).readableDatabase).getCursorAll(null)
+                    gifAdapter?.swapCursor(cursor)
+                }
+                GIPHYService.UPDATE_SEARCH -> {
+                    val cursor = GifORM(GIFTVDB(context).readableDatabase).getSearch(intent.getStringExtra("terms"))
+                    gifAdapter?.swapCursor(cursor)
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,7 +99,18 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
         inputSearch = findViewById(R.id.search_input)
         recyclerView = findViewById(R.id.recycler_view)
 
-        // TODO: loaderManager.initLoader(LOADER_ID_TRENDING, Bundle(), loaderCallback).forceLoad()
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(GIPHYService.UPDATE_SEARCH)
+        intentFilter.addAction(GIPHYService.UPDATE_TRENDING)
+        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, intentFilter)
+
+        val trendingIntent = Intent(GIPHYService.ACTION_GET_TRENDING, null, this, GIPHYService::class.java)
+        GIPHYService.enqueueWork(this, trendingIntent)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver)
     }
 
     override fun onStart() {
@@ -217,7 +246,9 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
 
     private fun ACTION_search(query: String) {
         currentSearchTerms = query
-        // TODO: loaderManager.restartLoader(LOADER_ID_SEARCH, Bundle(), loaderCallback as android.app.LoaderManager.LoaderCallbacks<*>).forceLoad()
+        val searchIntent = Intent(GIPHYService.ACTION_GET_SEARCH, null, this, GIPHYService::class.java)
+        searchIntent.putExtra("terms", query)
+        GIPHYService.enqueueWork(this, searchIntent)
         loadMoreListener?.onRefresh()
     }
 
