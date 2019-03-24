@@ -10,7 +10,6 @@ import com.android.volley.VolleyError
 import com.icenerd.giftv.BuildConfig
 import com.icenerd.giftv.data.loader.GifRequest
 import pl.droidsonroids.gif.GifDrawable
-import pl.droidsonroids.gif.GifImageView
 import java.util.*
 
 class GifLoader(private val requestQueue: RequestQueue?, private val cache: GifCache) {

@@ -1,14 +1,13 @@
 package com.icenerd.giftv.net
 
-
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.os.Handler
 import android.os.Message
-import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.icenerd.giftv.BuildConfig
 import com.icenerd.giftv.MobileTVActivity
 import com.icenerd.giftv.data.GIFTVDB

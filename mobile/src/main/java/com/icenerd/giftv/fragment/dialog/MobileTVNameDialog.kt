@@ -2,7 +2,6 @@ package com.icenerd.giftv.fragment.dialog
 
 import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +9,7 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
 import android.widget.EditText
+import androidx.fragment.app.DialogFragment
 import com.icenerd.giftv.MobileTVActivity
 import com.icenerd.giftv.R
 import java.util.*

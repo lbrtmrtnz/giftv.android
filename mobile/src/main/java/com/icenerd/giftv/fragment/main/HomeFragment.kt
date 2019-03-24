@@ -1,8 +1,8 @@
 package com.icenerd.giftv.fragment.main
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.*
+import androidx.fragment.app.Fragment
 import com.icenerd.giftv.R
 
 class HomeFragment : Fragment() {

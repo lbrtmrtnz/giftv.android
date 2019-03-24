@@ -17,7 +17,7 @@
         android:paddingTop="@dimen/horizontal_2x"
         android:paddingBottom="@dimen/horizontal_2x"
         android:layout_gravity="center">
-        <android.support.v7.widget.CardView android:id="@+id/container_status"
+        <androidx.cardview.widget.CardView android:id="@+id/container_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center">
@@ -33,7 +33,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/vertical_small"
                     android:gravity="center_vertical">
-                    <TextView android:id="@+id/text_status"
+                    <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="@dimen/horizontal_2x"
@@ -49,13 +49,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical">
-                            <android.support.v7.widget.AppCompatImageView
+                            <androidx.appcompat.widget.AppCompatImageView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="@dimen/horizontal"
                                 android:layout_marginRight="@dimen/horizontal"
                                 android:src="@drawable/ic_live_tv_black" />
-                            <TextView android:id="@+id/text_tv_name"
+                            <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_tv_name"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/colorAccent"
@@ -66,13 +66,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical">
-                            <android.support.v7.widget.AppCompatImageView
+                            <androidx.appcompat.widget.AppCompatImageView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="@dimen/horizontal"
                                 android:layout_marginRight="@dimen/horizontal"
                                 android:src="@drawable/ic_router" />
-                            <TextView android:id="@+id/text_ssid"
+                            <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_ssid"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/colorAccent"
@@ -82,14 +82,14 @@
                     </LinearLayout>
 
                 </LinearLayout>
-                <TextView android:id="@+id/text_detail"
+                <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorPrimary"
                     android:textSize="@dimen/text_medium"
                     android:text="@string/tv_wait"/>
             </LinearLayout>
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
     </FrameLayout>
 
     <FrameLayout android:id="@+id/frame_gif"

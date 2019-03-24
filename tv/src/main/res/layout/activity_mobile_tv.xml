@@ -19,7 +19,7 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:weightSum="1.0">
-        <android.support.v7.widget.CardView android:id="@+id/container_status"
+        <androidx.cardview.widget.CardView android:id="@+id/container_status"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -37,7 +37,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/vertical_small"
                     android:gravity="center_vertical">
-                    <TextView android:id="@+id/text_status"
+                    <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/horizontal_2x"
@@ -52,13 +52,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical">
-                            <ImageView
+                            <androidx.appcompat.widget.AppCompatImageView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="@dimen/horizontal"
                                 android:src="@drawable/ic_live_tv"
                                 android:backgroundTint="@color/colorAccent"/>
-                            <TextView android:id="@+id/text_tv_name"
+                            <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_tv_name"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/colorAccent"
@@ -69,13 +69,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical">
-                            <ImageView
+                            <androidx.appcompat.widget.AppCompatImageView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="@dimen/horizontal"
                                 android:src="@drawable/ic_router"
                                 android:backgroundTint="@color/colorAccent"/>
-                            <TextView android:id="@+id/text_ssid"
+                            <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_ssid"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/colorAccent"
@@ -85,14 +85,14 @@
                     </LinearLayout>
 
                 </LinearLayout>
-                <TextView android:id="@+id/text_detail"
+                <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorPrimary"
                     android:textSize="@dimen/text_medium"
                     android:text="@string/tv_wait"/>
             </LinearLayout>
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
     </LinearLayout>
 
     <FrameLayout android:id="@+id/frame_gif"

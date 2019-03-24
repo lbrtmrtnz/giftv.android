@@ -9,14 +9,14 @@ import android.net.nsd.NsdManager
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.content.LocalBroadcastManager
-import android.support.v7.app.AppCompatActivity
 import android.util.Base64
 import android.util.Log
 import android.util.LruCache
 import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.android.volley.RequestQueue
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.Volley

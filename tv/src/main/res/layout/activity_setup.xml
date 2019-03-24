@@ -15,7 +15,7 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:weightSum="1.0">
-        <android.support.v7.widget.CardView android:id="@+id/container_status"
+        <androidx.cardview.widget.CardView android:id="@+id/container_status"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -33,7 +33,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/vertical_small"
                     android:gravity="center_vertical">
-                    <TextView android:id="@+id/text_status"
+                    <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/horizontal_2x"
@@ -48,13 +48,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical">
-                            <ImageView
+                            <androidx.appcompat.widget.AppCompatImageView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="@dimen/horizontal"
                                 android:src="@drawable/ic_router"
                                 android:backgroundTint="@color/colorAccent"/>
-                            <TextView android:id="@+id/text_ssid"
+                            <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_ssid"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/colorPrimary"
@@ -67,7 +67,7 @@
                 <FrameLayout android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                    <TextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/tv_setup"
@@ -83,7 +83,7 @@
                     android:paddingBottom="@dimen/vertical_2x"
                     android:layout_marginBottom="@dimen/vertical_2x">
 
-                    <Button android:id="@+id/action_generate_random_name"
+                    <androidx.appcompat.widget.AppCompatButton android:id="@+id/action_generate_random_name"
                         android:nextFocusLeft="@+id/input_name"
                         android:nextFocusDown="@+id/action_start"
                         android:nextFocusRight="@id/action_start"
@@ -107,7 +107,7 @@
                         android:layout_centerVertical="true"
                         android:weightSum="1.0">
 
-                        <TextView
+                        <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="0.3"
@@ -116,7 +116,7 @@
                             android:textColor="@color/colorPrimaryDark"
                             android:layout_marginEnd="@dimen/horizontal"/>
 
-                        <EditText android:id="@id/input_name"
+                        <androidx.appcompat.widget.AppCompatEditText android:id="@id/input_name"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="0.7"
@@ -136,7 +136,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|end">
-                    <Button android:id="@id/action_start"
+                    <androidx.appcompat.widget.AppCompatButton android:id="@id/action_start"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
@@ -151,7 +151,7 @@
                         android:paddingBottom="@dimen/vertical"
                         android:text="@string/action_start"
                         android:background="@drawable/tv_bg_button"/>
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_toStartOf="@id/action_start"
@@ -162,7 +162,7 @@
                         android:src="@drawable/powered_by_giphy"/>
                 </RelativeLayout>
             </LinearLayout>
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
     </LinearLayout>
 
 </FrameLayout>

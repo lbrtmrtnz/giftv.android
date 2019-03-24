@@ -2,7 +2,7 @@ package com.icenerd.giftv.data.loader
 
 import android.content.*
 import android.database.Cursor
-import android.support.v4.content.LocalBroadcastManager
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.icenerd.giftv.data.GIFTVDB
 import com.icenerd.giftv.data.orm.TCPServiceORM
 import com.icenerd.giftv.net.DataService

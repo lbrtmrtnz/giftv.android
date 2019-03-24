@@ -1,7 +1,7 @@
 package com.icenerd.adapter
 
 import android.database.Cursor
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 
 abstract class CursorRecyclerAdapter<VH : RecyclerView.ViewHolder>(private var mCursor: Cursor?) : RecyclerView.Adapter<VH>() {
     override fun getItemCount(): Int { return mCursor?.count?:0 }

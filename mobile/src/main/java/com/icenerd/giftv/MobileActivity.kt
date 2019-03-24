@@ -1,18 +1,10 @@
 package com.icenerd.giftv
 
-import android.app.LoaderManager
 import android.content.Context
 import android.content.Intent
-import android.content.Loader
 import android.database.Cursor
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.content.res.ResourcesCompat
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.view.ActionMode
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -20,6 +12,14 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ActionMode
+import androidx.core.content.res.ResourcesCompat
+import androidx.loader.app.LoaderManager
+import androidx.loader.content.Loader
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.icenerd.adapter.RecyclerPageListener
 import com.icenerd.giftv.data.loader.GIPHYSearchLoader
 import com.icenerd.giftv.data.loader.GIPHYTrendingLoader
@@ -36,7 +36,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import java.util.*
 
-class MobileActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor>, ActionMode.Callback {
+class MobileActivity : AppCompatActivity(), ActionMode.Callback {
     companion object {
         private const val TAG = "MobileActivity"
         private val LOADER_ID_TRENDING = Random().nextInt()
@@ -55,6 +55,24 @@ class MobileActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
     private var mobileTVNameDialog: MobileTVNameDialog? = null
     private var actionModeCurrent: ActionMode? = null
 
+    private val loaderCallback: LoaderManager.LoaderCallbacks<Cursor> by lazy {
+        object: LoaderManager.LoaderCallbacks<Cursor> {
+            override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
+                return when(id) {
+                    LOADER_ID_TRENDING -> GIPHYTrendingLoader(this@MobileActivity)
+                    /*LOADER_ID_SEARCH*/ else -> GIPHYSearchLoader(this@MobileActivity, currentSearchTerms!!)
+                }
+            }
+            override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
+                gifAdapter?.swapCursor(data)
+            }
+
+            override fun onLoaderReset(loader: Loader<Cursor>) {
+                gifAdapter?.changeCursor(null)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -63,7 +81,7 @@ class MobileActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
         inputSearch = findViewById(R.id.search_input)
         recyclerView = findViewById(R.id.recycler_view)
 
-        loaderManager.initLoader(LOADER_ID_TRENDING, Bundle(), this).forceLoad()
+        // TODO: loaderManager.initLoader(LOADER_ID_TRENDING, Bundle(), loaderCallback).forceLoad()
     }
 
     override fun onStart() {
@@ -93,8 +111,7 @@ class MobileActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
                     }
                 }
             }
-        }
-        recyclerView?.addOnScrollListener(loadMoreListener)
+        }.also { recyclerView?.addOnScrollListener(it) }
 
         gifAdapter = GifAdapter()
         gifAdapter?.actionListener = object: GifAdapter.ActionListener {
@@ -200,25 +217,8 @@ class MobileActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
 
     private fun ACTION_search(query: String) {
         currentSearchTerms = query
-        loaderManager.restartLoader(LOADER_ID_SEARCH, Bundle(), this).forceLoad()
+        // TODO: loaderManager.restartLoader(LOADER_ID_SEARCH, Bundle(), loaderCallback as android.app.LoaderManager.LoaderCallbacks<*>).forceLoad()
         loadMoreListener?.onRefresh()
-    }
-
-    override fun onCreateLoader(id: Int, args: Bundle): Loader<Cursor>? {
-        if (currentSearchTerms == null) {
-            if (id == LOADER_ID_TRENDING) return GIPHYTrendingLoader(this)
-        } else {
-            if (id == LOADER_ID_SEARCH) return GIPHYSearchLoader(this, currentSearchTerms!!)
-        }
-        return null
-    }
-
-    override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor) {
-        gifAdapter?.swapCursor(data)
-    }
-
-    override fun onLoaderReset(loader: Loader<Cursor>) {
-        gifAdapter?.changeCursor(null)
     }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {

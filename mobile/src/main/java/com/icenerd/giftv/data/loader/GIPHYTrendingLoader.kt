@@ -1,10 +1,14 @@
 package com.icenerd.giftv.data.loader
 
 
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.database.Cursor
 import android.os.Build
-import android.support.v4.content.LocalBroadcastManager
+import androidx.loader.content.AsyncTaskLoader
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.icenerd.giftv.data.GIFTVDB
 import com.icenerd.giftv.net.GIPHYService
 import com.icenerd.giphy.data.orm.GifORM

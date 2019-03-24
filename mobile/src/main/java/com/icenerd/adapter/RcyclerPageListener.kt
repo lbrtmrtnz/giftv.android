@@ -1,8 +1,8 @@
 package com.icenerd.adapter
 
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.icenerd.giftv.BuildConfig
 
 abstract class RecyclerPageListener constructor(private val llMan: LinearLayoutManager): RecyclerView.OnScrollListener() {
@@ -25,11 +25,11 @@ abstract class RecyclerPageListener constructor(private val llMan: LinearLayoutM
         isLoading = true
     }
 
-    override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
 
         val countItem = llMan.itemCount
-        val countChild = recyclerView!!.childCount
+        val countChild = recyclerView.childCount
         val positionFirst = llMan.findFirstVisibleItemPosition()
 
         if (isLoading) {

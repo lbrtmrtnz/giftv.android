@@ -3,10 +3,10 @@ package com.icenerd.giftv.net
 
 import android.content.Context
 import android.content.Intent
-import android.support.v4.app.JobIntentService
-import android.support.v4.content.LocalBroadcastManager
 import android.util.Base64
 import android.util.Log
+import androidx.core.app.JobIntentService
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.icenerd.giftv.BuildConfig
 import com.icenerd.giftv.R
 import com.icenerd.giftv.data.GIFTVDB

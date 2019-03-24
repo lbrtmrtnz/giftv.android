@@ -10,25 +10,23 @@
         android:paddingRight="@dimen/horizontal_2x"
         android:paddingTop="@dimen/vertical_2x"
         android:paddingBottom="@dimen/vertical">
-        <android.support.v7.widget.AppCompatTextView android:id="@+id/title_mobile_tv_name"
+        <androidx.appcompat.widget.AppCompatTextView android:id="@+id/title_mobile_tv_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/title_mobile_tv_name_ic"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
             android:text="@string/dialog_mobile_tv_name_title"
-            android:layout_toEndOf="@+id/title_mobile_tv_name_ic" />
-        <android.support.v7.widget.AppCompatImageView android:id="@id/title_mobile_tv_name_ic"
+            android:layout_toEndOf="@id/title_mobile_tv_name_ic" />
+        <androidx.appcompat.widget.AppCompatImageView android:id="@+id/title_mobile_tv_name_ic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_alignTop="@id/title_mobile_tv_name"
             android:layout_alignBottom="@id/title_mobile_tv_name"
-            android:layout_marginRight="@dimen/horizontal"
             android:src="@drawable/ic_live_tv_black"
             android:layout_marginEnd="@dimen/horizontal" />
     </RelativeLayout>
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/horizontal_2x"
@@ -43,7 +41,7 @@
         android:paddingRight="@dimen/horizontal_2x"
         android:paddingTop="@dimen/vertical"
         android:paddingBottom="@dimen/vertical">
-        <android.support.v7.widget.AppCompatButton android:id="@+id/action_generate_random_name"
+        <androidx.appcompat.widget.AppCompatButton android:id="@+id/action_generate_random_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -53,7 +51,7 @@
             android:text="@string/action_generate_random_name"
             android:layout_gravity="end"
             android:layout_alignParentEnd="true" />
-        <android.support.v7.widget.AppCompatEditText android:id="@+id/input_mobile_tv_name"
+        <androidx.appcompat.widget.AppCompatEditText android:id="@+id/input_mobile_tv_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@id/action_generate_random_name"
@@ -73,7 +71,7 @@
             android:paddingRight="@dimen/horizontal_small"
             android:paddingTop="@dimen/vertical_small"
             android:paddingBottom="@dimen/vertical_small">
-            <android.support.v7.widget.AppCompatButton android:id="@+id/action_cancel"
+            <androidx.appcompat.widget.AppCompatButton android:id="@+id/action_cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -87,7 +85,7 @@
             android:paddingRight="@dimen/horizontal_small"
             android:paddingTop="@dimen/vertical_small"
             android:paddingBottom="@dimen/vertical_small">
-            <android.support.v7.widget.AppCompatButton android:id="@+id/action_ok"
+            <androidx.appcompat.widget.AppCompatButton android:id="@+id/action_ok"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/action_ok"
