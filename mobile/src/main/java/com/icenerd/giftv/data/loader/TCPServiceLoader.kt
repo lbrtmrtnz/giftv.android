@@ -10,14 +10,16 @@ import com.icenerd.giftv.net.DataService
 class TCPServiceLoader(ctx: Context) : AsyncTaskLoader<Cursor>(ctx) {
     private var cursor: Cursor? = null
         set(value) {
-            field?.isClosed?:field?.close()
+            if (field?.isClosed == false) field?.close()
             field = value
         }
     private val tcpServiceORM: TCPServiceORM by lazy { TCPServiceORM(GIFTVDB(context).readableDatabase) }
     private val localBroadcastManager: LocalBroadcastManager by lazy { LocalBroadcastManager.getInstance(context) }
     private val localBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == DataService.UPDATE_SERVICE_INFO) onContentChanged()
+            when (intent.action) {
+                DataService.UPDATE_SERVICE_INFO -> onContentChanged()
+            }
         }
     }
 

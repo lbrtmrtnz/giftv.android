@@ -20,14 +20,16 @@ import org.json.JSONObject
 import java.lang.ref.WeakReference
 
 class ClientMessageHandler(ctx: Context) : Handler() {
+
     private val context = WeakReference<Context>(ctx)
+
     override fun handleMessage(msg: Message) {
         if (msg.data.containsKey("json")) { // command to change state
             try {
                 val json = JSONObject(msg.data.getString("json"))
                 handleJSON(json)
             } catch (err: JSONException) {
-                if(BuildConfig.DEBUG) err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             }
         }
     }
@@ -46,9 +48,9 @@ class ClientMessageHandler(ctx: Context) : Handler() {
                     bSignal = true
                 }
             } catch (err: JSONException) {
-                if(BuildConfig.DEBUG) err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             } finally {
-                if(db?.isOpen==true) db.close()
+                if (db?.isOpen == true) db.close()
             }
         }
 
@@ -68,9 +70,9 @@ class ClientMessageHandler(ctx: Context) : Handler() {
                     if (BuildConfig.DEBUG) Log.d(TAG, "gif added to television log")
                 }
             } catch (err: JSONException) {
-                if(BuildConfig.DEBUG) err.printStackTrace()
+                if (BuildConfig.DEBUG) err.printStackTrace()
             } finally {
-                if(db?.isOpen==true) db.close()
+                if (db?.isOpen == true) db.close()
             }
         }
 

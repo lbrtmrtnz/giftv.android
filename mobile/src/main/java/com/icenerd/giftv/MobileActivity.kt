@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.database.Cursor
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -17,16 +16,12 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.res.ResourcesCompat
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.Loader
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.icenerd.adapter.RecyclerPageListener
 import com.icenerd.giftv.data.GIFTVDB
-import com.icenerd.giftv.data.loader.GIPHYSearchLoader
-import com.icenerd.giftv.data.loader.GIPHYTrendingLoader
 import com.icenerd.giftv.data.model.TCPServiceModel
 import com.icenerd.giftv.fragment.dialog.AboutDialog
 import com.icenerd.giftv.fragment.dialog.MobileTVNameDialog
@@ -59,6 +54,7 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
     private var mobileTVNameDialog: MobileTVNameDialog? = null
     private var actionModeCurrent: ActionMode? = null
 
+    /*
     private val loaderCallback: LoaderManager.LoaderCallbacks<Cursor> by lazy {
         object: LoaderManager.LoaderCallbacks<Cursor> {
             override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
@@ -76,6 +72,7 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
             }
         }
     }
+    */
     private val localBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {

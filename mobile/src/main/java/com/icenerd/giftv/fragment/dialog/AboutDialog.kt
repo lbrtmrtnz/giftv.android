@@ -1,6 +1,7 @@
 package com.icenerd.giftv.fragment.dialog
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,12 +14,21 @@ import com.icenerd.giftv.BuildConfig
 import com.icenerd.giftv.R
 
 class AboutDialog : DialogFragment() {
-    @SuppressLint("SetTextI18n")
+
+    private val text_build by lazy { view?.findViewById<TextView>(R.id.text_build) }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return super.onCreateDialog(savedInstanceState).also {
+            it.window?.requestFeature(Window.FEATURE_NO_TITLE)
+        }
+    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.dialog_about, container, false)
-        val dialog = dialog
-        dialog.window!!.requestFeature(Window.FEATURE_NO_TITLE)
-        view.findViewById<TextView>(R.id.text_build).text = "${BuildConfig.BUILD_TIME} - ${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE}"
-        return view
+        return inflater.inflate(R.layout.dialog_about, container, false)
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun onStart() {
+        super.onStart()
+        text_build?.text = "${BuildConfig.BUILD_TIME} - ${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE}"
     }
 }

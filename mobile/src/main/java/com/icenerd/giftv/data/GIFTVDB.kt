@@ -9,7 +9,7 @@ import com.icenerd.giftv.data.orm.StatusORM
 import com.icenerd.giftv.data.orm.TCPServiceORM
 import com.icenerd.giphy.data.orm.GifORM
 
-class GIFTVDB(ctx: Context) : SQLiteOpenHelper(ctx, NAME, null, VERSION) {
+class GIFTVDB(context: Context) : SQLiteOpenHelper(context, NAME, null, VERSION) {
     companion object {
         private const val NAME = "com.icenerd.giftv"
         private const val VERSION = 1

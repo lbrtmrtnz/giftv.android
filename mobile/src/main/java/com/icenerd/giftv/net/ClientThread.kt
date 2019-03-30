@@ -58,10 +58,8 @@ constructor(private val secretKeySpec: SecretKeySpec, private val socket: Socket
             var data: String = incoming.readLine() // chomp
             while(!data.isEmpty()) {
                 try {
-                    if (cipher != null) {
-                        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
-                        data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
-                    }
+                    cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+                    data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
                 } catch (err: BadPaddingException) {
                     if(BuildConfig.DEBUG) err.printStackTrace()
                 } catch (err: IllegalBlockSizeException) {
@@ -76,10 +74,8 @@ constructor(private val secretKeySpec: SecretKeySpec, private val socket: Socket
                     if (!data.isEmpty()) {
 
                         try {
-                            if (cipher != null) {
-                                cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
-                                data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
-                            }
+                            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+                            data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
                         } catch (err: BadPaddingException) {
                             if(BuildConfig.DEBUG) err.printStackTrace()
                         } catch (err: IllegalBlockSizeException) {
@@ -89,27 +85,21 @@ constructor(private val secretKeySpec: SecretKeySpec, private val socket: Socket
                         }
 
                         try {
-
                             val json = JSONObject(data)
                             if (BuildConfig.DEBUG) Log.d("SIGNAL_IDENTIFY", json.toString(1))
-
-                            json.put(StatusORM.TABLE, ServerThread.STATE?.getJSONObject())
-                            json.put(InstallationORM.COL_UUID, ServerThread.STATE?.getUUID())
-                            json.put(InstallationORM.COL_BRAND, Build.BRAND)
-                            json.put(InstallationORM.COL_MANUFACTURER, Build.MANUFACTURER)
-                            json.put(InstallationORM.COL_MODEL, Build.MODEL)
-                            json.put(InstallationORM.COL_SERIAL, BuildConfig.BUILD_TIME)
-                            json.put(InstallationORM.COL_SDK_INT, Build.VERSION.SDK_INT)
-
-                            if (cipher != null) {
-                                cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
-
-                                outgoing.println(Base64.encodeToString(cipher.doFinal(Server.SIGNAL_IDENTIFY.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
-
-                                if (BuildConfig.DEBUG) Log.d("RESPONSE", json.toString(1))
-                                outgoing.println(Base64.encodeToString(cipher.doFinal(json.toString().toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                            json.apply {
+                                put(StatusORM.TABLE, ServerThread.STATE?.getJSONObject())
+                                put(InstallationORM.COL_UUID, ServerThread.STATE?.getUUID())
+                                put(InstallationORM.COL_BRAND, Build.BRAND)
+                                put(InstallationORM.COL_MANUFACTURER, Build.MANUFACTURER)
+                                put(InstallationORM.COL_MODEL, Build.MODEL)
+                                put(InstallationORM.COL_SERIAL, BuildConfig.BUILD_TIME)
+                                put(InstallationORM.COL_SDK_INT, Build.VERSION.SDK_INT)
                             }
-
+                            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+                            outgoing.println(Base64.encodeToString(cipher.doFinal(Server.SIGNAL_IDENTIFY.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                            if (BuildConfig.DEBUG) Log.d("RESPONSE", json.toString(1))
+                            outgoing.println(Base64.encodeToString(cipher.doFinal(json.toString().toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
                         } catch (err: BadPaddingException) {
                             if(BuildConfig.DEBUG) err.printStackTrace()
                         } catch (err: IllegalBlockSizeException) {
@@ -129,10 +119,8 @@ constructor(private val secretKeySpec: SecretKeySpec, private val socket: Socket
                     if (!data.isEmpty()) {
 
                         try {
-                            if (cipher != null) {
-                                cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
-                                data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
-                            }
+                            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+                            data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
                         } catch (err: BadPaddingException) {
                             if(BuildConfig.DEBUG) err.printStackTrace()
                         } catch (err: IllegalBlockSizeException) {
@@ -142,24 +130,21 @@ constructor(private val secretKeySpec: SecretKeySpec, private val socket: Socket
                         }
 
                         if (BuildConfig.DEBUG) Log.d("SIGNAL_JSON", data)
-                        if (handler != null) {
-                            val bundle = Bundle()
-                            bundle.putString("json", data)
-                            val message = Message()
-                            message.data = bundle
-                            handler.sendMessage(message)
-                            if (BuildConfig.DEBUG) Log.d("SIGNAL_JSON", "sent to handler")
-                        }
+
+                        val bundle = Bundle()
+                        bundle.putString("json", data)
+                        val message = Message()
+                        message.data = bundle
+                        handler?.sendMessage(message)
+                        if (BuildConfig.DEBUG) Log.d("SIGNAL_JSON", "sent to handler: ${handler != null}")
                     }
                 } else if (data.equals(Server.SIGNAL_CLOSE) || !isRunning) {
                     if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_CLOSE received")
                     try {
-                        if (cipher != null) {
-                            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+                        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
 
-                            outgoing.println(Base64.encodeToString(cipher.doFinal(Server.SIGNAL_CLOSE.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
-                            if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_CLOSE sent")
-                        }
+                        outgoing.println(Base64.encodeToString(cipher.doFinal(Server.SIGNAL_CLOSE.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                        if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_CLOSE sent")
                     } catch (err: BadPaddingException) {
                         if(BuildConfig.DEBUG) err.printStackTrace()
                     } catch (err: IllegalBlockSizeException) {

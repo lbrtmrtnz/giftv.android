@@ -52,19 +52,11 @@ class DataService : JobIntentService() {
     }
 
     private var secretKey: SecretKeySpec? = null
-    private var cipher: Cipher? = null
+    private val cipher by lazy { Cipher.getInstance("AES") }
 
     override fun onHandleWork(intent: Intent) {
         if (secretKey == null) {
             secretKey = SecretKeySpec(Base64.decode(getString(R.string.network_service_secret), Base64.NO_CLOSE or Base64.NO_WRAP), "AES")
-            try {
-                cipher = Cipher.getInstance("AES")
-            } catch (err: NoSuchAlgorithmException) {
-                if (BuildConfig.DEBUG) err.printStackTrace()
-            } catch (err: NoSuchPaddingException) {
-                if (BuildConfig.DEBUG) err.printStackTrace()
-            }
-
         }
         try {
             when(intent.action) {
@@ -104,20 +96,18 @@ class DataService : JobIntentService() {
             val incoming = BufferedReader(InputStreamReader(socket.getInputStream()))
 
             try {
-                if (cipher != null) {
-                    cipher!!.init(Cipher.ENCRYPT_MODE, secretKey)
+                cipher.init(Cipher.ENCRYPT_MODE, secretKey)
 
-                    if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_IDENTIFY")
-                    outgoing.println(Base64.encodeToString(cipher!!.doFinal(Server.SIGNAL_IDENTIFY.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_IDENTIFY")
+                outgoing.println(Base64.encodeToString(cipher.doFinal(Server.SIGNAL_IDENTIFY.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
 
-                    val sigIdentify = "{\"name\":\"$name\",\"host\":\"$host\",\"port\":$port}"
-                    if (BuildConfig.DEBUG) Log.d("SIGNAL_IDENTIFY", sigIdentify)
-                    outgoing.println(Base64.encodeToString(cipher!!.doFinal(sigIdentify.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                val sigIdentify = "{\"name\":\"$name\",\"host\":\"$host\",\"port\":$port}"
+                if (BuildConfig.DEBUG) Log.d("SIGNAL_IDENTIFY", sigIdentify)
+                outgoing.println(Base64.encodeToString(cipher.doFinal(sigIdentify.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
 
-                    outgoing.println(Base64.encodeToString(cipher!!.doFinal(Server.SIGNAL_CLOSE.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
-                    if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_CLOSE sent")
+                outgoing.println(Base64.encodeToString(cipher.doFinal(Server.SIGNAL_CLOSE.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_CLOSE sent")
 
-                }
             } catch (err: BadPaddingException) {
                 if (BuildConfig.DEBUG) err.printStackTrace()
             } catch (err: IllegalBlockSizeException) {
@@ -131,11 +121,9 @@ class DataService : JobIntentService() {
             while (!data.isEmpty()) {
 
                 try {
-                    if (cipher != null) {
-                        cipher?.init(Cipher.DECRYPT_MODE, secretKey)
-                        data = String(cipher!!.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
-                        if (BuildConfig.DEBUG) Log.d(TAG, data)
-                    }
+                    cipher.init(Cipher.DECRYPT_MODE, secretKey)
+                    data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
+                    if (BuildConfig.DEBUG) Log.d(TAG, data)
                 } catch (err: BadPaddingException) {
                     if (BuildConfig.DEBUG) err.printStackTrace()
                 } catch (err: IllegalBlockSizeException) {
@@ -154,11 +142,9 @@ class DataService : JobIntentService() {
                     if (!data.isEmpty()) {
 
                         try {
-                            if (cipher != null) {
-                                cipher!!.init(Cipher.DECRYPT_MODE, secretKey)
-                                data = String(cipher!!.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
-                                if (BuildConfig.DEBUG) Log.d("SIGNAL_IDENTIFY", data)
-                            }
+                            cipher.init(Cipher.DECRYPT_MODE, secretKey)
+                            data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
+                            if (BuildConfig.DEBUG) Log.d("SIGNAL_IDENTIFY", data)
                         } catch (err: BadPaddingException) {
                             if (BuildConfig.DEBUG) err.printStackTrace()
                         } catch (err: IllegalBlockSizeException) {
@@ -205,18 +191,16 @@ class DataService : JobIntentService() {
             val incoming = BufferedReader(InputStreamReader(socket.getInputStream()))
 
             try {
-                if (cipher != null) {
-                    cipher!!.init(Cipher.ENCRYPT_MODE, secretKey)
+                    cipher.init(Cipher.ENCRYPT_MODE, secretKey)
 
-                    outgoing.println(Base64.encodeToString(cipher!!.doFinal(Server.SIGNAL_JSON.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                    outgoing.println(Base64.encodeToString(cipher.doFinal(Server.SIGNAL_JSON.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
                     if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_JSON sent")
 
-                    outgoing.println(Base64.encodeToString(cipher!!.doFinal(jsonString.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                    outgoing.println(Base64.encodeToString(cipher.doFinal(jsonString.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
                     if (BuildConfig.DEBUG) Log.d(TAG, "jsonString sent")
 
-                    outgoing.println(Base64.encodeToString(cipher!!.doFinal(Server.SIGNAL_CLOSE.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
+                    outgoing.println(Base64.encodeToString(cipher.doFinal(Server.SIGNAL_CLOSE.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
                     if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_CLOSE sent")
-                }
             } catch (err: BadPaddingException) {
                 if (BuildConfig.DEBUG) err.printStackTrace()
             } catch (err: IllegalBlockSizeException) {
@@ -229,11 +213,9 @@ class DataService : JobIntentService() {
             while (!data.isEmpty()) {
 
                 try {
-                    if (cipher != null) {
-                        cipher!!.init(Cipher.DECRYPT_MODE, secretKey)
-                        data = String(cipher!!.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
-                        if (BuildConfig.DEBUG) Log.d(TAG, data)
-                    }
+                    cipher.init(Cipher.DECRYPT_MODE, secretKey)
+                    data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
+                    if (BuildConfig.DEBUG) Log.d(TAG, data)
                 } catch (err: BadPaddingException) {
                     if (BuildConfig.DEBUG) err.printStackTrace()
                 } catch (err: IllegalBlockSizeException) {
