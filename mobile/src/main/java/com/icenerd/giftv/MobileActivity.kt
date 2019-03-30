@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -33,56 +32,39 @@ import com.icenerd.giphy.data.model.GifModel
 import com.icenerd.giphy.data.orm.GifORM
 import org.json.JSONArray
 import org.json.JSONException
-import java.util.*
 
 class MobileActivity : AppCompatActivity(), ActionMode.Callback {
     companion object {
         private const val TAG = "MobileActivity"
-        private val LOADER_ID_TRENDING = Random().nextInt()
-        private val LOADER_ID_SEARCH = Random().nextInt()
     }
 
     private var currentSearchTerms: String? = null
 
-    private var inputSearch: EditText? = null
-    private var recyclerView: RecyclerView? = null
+    private val inputSearch by lazy { findViewById<EditText>(R.id.search_input) }
+    private val actionSearch by lazy { findViewById<View>(R.id.action_search) }
+    private val recyclerView by lazy { findViewById<RecyclerView>(R.id.recycler_view) }
 
     private var loadMoreListener: RecyclerPageListener? = null
-    private var gifAdapter: GifAdapter? = null
+    private val gifAdapter by lazy {
+        GifAdapter().apply {
+
+        }
+    }
 
     private var abouDialog: AboutDialog? = null
     private var mobileTVNameDialog: MobileTVNameDialog? = null
     private var actionModeCurrent: ActionMode? = null
 
-    /*
-    private val loaderCallback: LoaderManager.LoaderCallbacks<Cursor> by lazy {
-        object: LoaderManager.LoaderCallbacks<Cursor> {
-            override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-                return when(id) {
-                    LOADER_ID_TRENDING -> GIPHYTrendingLoader(this@MobileActivity)
-                    /*LOADER_ID_SEARCH*/ else -> GIPHYSearchLoader(this@MobileActivity, currentSearchTerms!!)
-                }
-            }
-            override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
-                gifAdapter?.swapCursor(data)
-            }
-
-            override fun onLoaderReset(loader: Loader<Cursor>) {
-                gifAdapter?.changeCursor(null)
-            }
-        }
-    }
-    */
     private val localBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
                 GIPHYService.UPDATE_TRENDING -> {
                     val cursor = GifORM(GIFTVDB(context).readableDatabase).getCursorAll(null)
-                    gifAdapter?.swapCursor(cursor)
+                    gifAdapter.swapCursor(cursor)
                 }
                 GIPHYService.UPDATE_SEARCH -> {
                     val cursor = GifORM(GIFTVDB(context).readableDatabase).getSearch(intent.getStringExtra("terms"))
-                    gifAdapter?.swapCursor(cursor)
+                    gifAdapter.swapCursor(cursor)
                 }
             }
         }
@@ -92,9 +74,6 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
-
-        inputSearch = findViewById(R.id.search_input)
-        recyclerView = findViewById(R.id.recycler_view)
 
         val intentFilter = IntentFilter()
         intentFilter.addAction(GIPHYService.UPDATE_SEARCH)
@@ -114,67 +93,55 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
         super.onStart()
 
         val manager = GridLayoutManager(recyclerView?.context, 2)
-        recyclerView?.layoutManager = manager
-        recyclerView?.itemAnimator = DefaultItemAnimator()
+        recyclerView.layoutManager = manager
+        recyclerView.itemAnimator = DefaultItemAnimator()
         loadMoreListener = object : RecyclerPageListener(manager) {
             override fun onLoadMore(current_page: Int) {
                 if(BuildConfig.DEBUG) Log.d("onLoadMore", "${current_page}")
-                if (currentSearchTerms == null) {
+                if (currentSearchTerms.isNullOrEmpty()) {
                     val intent = Intent(GIPHYService.ACTION_GET_TRENDING, null, this@MobileActivity, GIPHYService::class.java)
-                    if (Build.VERSION.SDK_INT >= 21) {
-                        GIPHYService.enqueueWork(this@MobileActivity, intent)
-                    } else {
-                        startService(intent)
-                    }
+                    GIPHYService.enqueueWork(this@MobileActivity, intent)
                 } else {
                     val intent = Intent(GIPHYService.ACTION_GET_SEARCH, null, this@MobileActivity, GIPHYService::class.java)
-                    intent.putExtra("terms", currentSearchTerms)
-                    intent.putExtra("offset", current_page * GIPHYService.PAGESIZE_SEARCH)
-                    if (Build.VERSION.SDK_INT >= 21) {
-                        GIPHYService.enqueueWork(this@MobileActivity, intent)
-                    } else {
-                        startService(intent)
-                    }
+                    intent.putExtra(GIPHYService.EXTRA_TERMS, currentSearchTerms)
+                    intent.putExtra(GIPHYService.EXTRA_OFFSET, current_page * GIPHYService.PAGESIZE_SEARCH)
+                    GIPHYService.enqueueWork(this@MobileActivity, intent)
                 }
             }
         }.also { recyclerView?.addOnScrollListener(it) }
 
-        gifAdapter = GifAdapter()
-        gifAdapter?.actionListener = object: GifAdapter.ActionListener {
+        recyclerView?.adapter = gifAdapter
+        gifAdapter.actionListener = object: GifAdapter.ActionListener {
             override fun onItemClick(model: GifModel) {
                 if (BuildConfig.DEBUG) Log.d(TAG, "item clicked")
-                if (actionModeCurrent == null) {
-                    // nothing to do
-                } else {
-                    val count = gifAdapter?.selectedCount?:0
-                    actionModeCurrent?.title = "$count GIF selected"
-                }
+                val count = gifAdapter.selectedCount
+                actionModeCurrent?.title = "$count GIF selected"
             }
             override fun onItemLongClick(model: GifModel) {
                 if (BuildConfig.DEBUG) Log.d(TAG, "item long clicked")
                 if (actionModeCurrent == null) {
                     startSupportActionMode(this@MobileActivity)
-                    gifAdapter?.toggleSelection = true
-                } else {
-                    // nothing to do
+                    gifAdapter.toggleSelection = true
                 }
             }
         }
-        recyclerView?.adapter = gifAdapter
-        findViewById<View>(R.id.action_search).setOnClickListener {
+
+        actionSearch.setOnClickListener {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(inputSearch?.windowToken, 0)
-            if (actionModeCurrent == null && !inputSearch?.text.toString().isEmpty()) {
+            if (actionModeCurrent == null && !inputSearch?.text.isNullOrEmpty()) {
                 ACTION_search(inputSearch?.text.toString())
             }
         }
         inputSearch?.imeOptions = EditorInfo.IME_ACTION_SEARCH
         inputSearch?.setOnEditorActionListener { textView, action_id, _ ->
-            if (action_id == EditorInfo.IME_ACTION_SEARCH) {
-                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(textView.windowToken, 0)
-                if (actionModeCurrent == null && !inputSearch?.text.toString().isEmpty()) {
-                    ACTION_search(inputSearch?.text.toString())
+            when (action_id) {
+                EditorInfo.IME_ACTION_SEARCH -> {
+                    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(textView.windowToken, 0)
+                    if (actionModeCurrent == null && !inputSearch?.text.isNullOrEmpty()) {
+                        ACTION_search(inputSearch?.text.toString())
+                    }
                 }
             }
             false
@@ -217,14 +184,14 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
     }
 
     private fun startMobileTV() {
-        val ft = supportFragmentManager.beginTransaction()
-
         mobileTVNameDialog = MobileTVNameDialog()
         mobileTVNameDialog?.actionListener = object : MobileTVNameDialog.ActionListener {
             override fun onStartMobileTV(name: String) {
                 startMobileTV(name)
             }
         }
+
+        val ft = supportFragmentManager.beginTransaction()
         mobileTVNameDialog?.show(ft, "mobile_tv_name_dialog")
     }
 
@@ -253,12 +220,8 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
         mode.menuInflater.inflate(R.menu.actionmode_multi_select, menu)
         actionModeCurrent = mode
         inputSearch?.isEnabled = false
-        if (Build.VERSION.SDK_INT >= 23) {
-            inputSearch?.setTextColor(getColor(R.color.black_overlay))
-        } else {
-            inputSearch?.setTextColor(ResourcesCompat.getColor(resources, R.color.black_overlay, theme))
-        }
-        findViewById<View>(R.id.action_search).setBackgroundResource(R.color.colorPrimaryDark)
+        inputSearch?.setTextColor(ResourcesCompat.getColor(resources, R.color.black_overlay, theme))
+        actionSearch.setBackgroundResource(R.color.colorPrimaryDark)
         return true
     }
 
@@ -270,8 +233,8 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
         if (item.itemId == R.id.action_send) {
             if (BuildConfig.DEBUG) Log.d(TAG, "action_send")
 
-            val selectedGif = gifAdapter?.selectedGIF
-            if (selectedGif != null && selectedGif.size > 0) {
+            val selectedGif = gifAdapter.selectedGIF
+            if (selectedGif.isNotEmpty()) {
                 val fragMan = supportFragmentManager
                 val dialog = SendChannelDialog()
 
@@ -304,13 +267,9 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
 
     override fun onDestroyActionMode(mode: ActionMode) {
         actionModeCurrent = null
-        gifAdapter?.clearSelections()
+        gifAdapter.clearSelections()
         inputSearch?.isEnabled = true
-        if (Build.VERSION.SDK_INT >= 23) {
-            inputSearch?.setTextColor(getColor(R.color.colorPrimary))
-        } else {
-            inputSearch?.setTextColor(ResourcesCompat.getColor(resources,R.color.colorPrimary,theme))
-        }
-        findViewById<View>(R.id.action_search).setBackgroundResource(R.color.colorAccent)
+        inputSearch?.setTextColor(ResourcesCompat.getColor(resources,R.color.colorPrimary,theme))
+        actionSearch.setBackgroundResource(R.color.colorAccent)
     }
 }

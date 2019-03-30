@@ -2,6 +2,7 @@ package com.icenerd.giftv.net
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.core.app.JobIntentService
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.icenerd.giftv.BuildConfig
@@ -24,6 +25,9 @@ class GIPHYService : JobIntentService() {
         const val ACTION_GET_TRENDING = "action_get_trending"
         const val ACTION_GET_SEARCH = "action_get_search"
 
+        const val EXTRA_TERMS = "terms"
+        const val EXTRA_OFFSET = "offset"
+
         const val PAGESIZE_TRENDING = 24
         const val PAGESIZE_SEARCH = 24
 
@@ -45,10 +49,12 @@ class GIPHYService : JobIntentService() {
                 }
             }
             ACTION_GET_SEARCH -> {
-                if (API_get_search(intent.getStringExtra("terms"), intent.getIntExtra("offset", 0))) {
+                val terms = intent.getStringExtra(EXTRA_TERMS)?:""
+                val offset = intent.getIntExtra(EXTRA_OFFSET, 0)
+                if (API_get_search(terms, offset)) {
                     val updateSearch = Intent(UPDATE_SEARCH)
-                    updateSearch.putExtra("terms", intent.getStringExtra("terms"))
-                    updateSearch.putExtra("offset", intent.getIntExtra("offset", 0))
+                    updateSearch.putExtra(EXTRA_TERMS, terms)
+                    updateSearch.putExtra(EXTRA_OFFSET, offset)
                     LocalBroadcastManager.getInstance(this).sendBroadcast(updateSearch)
                 }
             }
@@ -66,7 +72,7 @@ class GIPHYService : JobIntentService() {
         var json: JSONObject? = null
         try {
             val response = httpClient.newCall(request).execute()
-            if (!response.isSuccessful) throw IOException(String.format("Unexpected code: %s", response))
+            if (!response.isSuccessful) throw IOException("Unexpected code: $response")
             json = JSONObject(response.body()!!.string())
         } catch (err: JSONException) {
             if (BuildConfig.DEBUG) err.printStackTrace()
