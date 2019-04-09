@@ -187,14 +187,12 @@ class GifTVActivity : Activity() {
         val orm = GifORM(db)
         listGIF = orm.tv_gif_list()
         if (nextPosition >= listGIF.size) nextPosition = 0
-        if (listGIF.size == 0) {
+        if (listGIF.isNullOrEmpty()) {
             if (BuildConfig.DEBUG) Log.d(TAG, "No Gifs found!")
             findViewById<View>(R.id.frame_gif).visibility = View.INVISIBLE
-            if (timer != null) {
-                timer!!.cancel()
-                timer!!.purge()
-                timer = null
-            }
+            timer?.cancel()
+            timer?.purge()
+            timer = null
         } else {
             if (BuildConfig.DEBUG) Log.d(TAG, listGIF.size.toString() + " Gifs found!")
             findViewById<View>(R.id.frame_gif).visibility = View.VISIBLE

@@ -38,33 +38,80 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
         private const val TAG = "MobileActivity"
     }
 
-    private var currentSearchTerms: String? = null
+    private var xSearchTerms: String? = null // main user event
+        set(searchTerms) {
+            field = searchTerms
+            val searchIntent = Intent(GIPHYService.ACTION_GET_SEARCH, null, this, GIPHYService::class.java)
+            searchIntent.putExtra("terms", searchTerms)
+            GIPHYService.enqueueWork(this, searchIntent)
+            mLoadMoreListener.onRefresh()
+        }
 
-    private val inputSearch by lazy { findViewById<EditText>(R.id.search_input) }
+    private val inputSearch by lazy { findViewById<EditText>(R.id.input_search) }
     private val actionSearch by lazy { findViewById<View>(R.id.action_search) }
     private val recyclerView by lazy { findViewById<RecyclerView>(R.id.recycler_view) }
 
-    private var loadMoreListener: RecyclerPageListener? = null
-    private val gifAdapter by lazy {
-        GifAdapter().apply {
+    private var mAboutDialog: AboutDialog? = null
+    private var mMobileTVNameDialog: MobileTVNameDialog? = null
+        set(dialog) {
+            dialog?.actionListener = mMobileTVNameDialogActions
+            field = dialog
+        }
+    private var mActionMode: ActionMode? = null
 
+    private val mMobileTVNameDialogActions by lazy {
+        object : MobileTVNameDialog.ActionListener {
+            override fun onStartMobileTV(name: String) {
+                startMobileTV(name)
+            }
+        }}
+
+    private val mGridLayoutManager by lazy { GridLayoutManager(this, 2) }
+    private val mLoadMoreListener by lazy {
+        object : RecyclerPageListener(mGridLayoutManager) {
+            override fun onLoadMore(current_page: Int) {
+                if(BuildConfig.DEBUG) Log.d("onLoadMore", "${current_page}")
+                if (xSearchTerms.isNullOrEmpty()) {
+                    val intent = Intent(GIPHYService.ACTION_GET_TRENDING, null, this@MobileActivity, GIPHYService::class.java)
+                    GIPHYService.enqueueWork(this@MobileActivity, intent)
+                } else {
+                    val intent = Intent(GIPHYService.ACTION_GET_SEARCH, null, this@MobileActivity, GIPHYService::class.java)
+                    intent.putExtra(GIPHYService.EXTRA_TERMS, xSearchTerms)
+                    intent.putExtra(GIPHYService.EXTRA_OFFSET, current_page * GIPHYService.PAGESIZE_SEARCH)
+                    GIPHYService.enqueueWork(this@MobileActivity, intent)
+                }
+            }
         }
     }
+    private val mGifAdapter by lazy { GifAdapter().also { adapter ->
+        adapter.actionListener = object: GifAdapter.ActionListener {
+            override fun onItemClick(model: GifModel) {
+                if (BuildConfig.DEBUG) Log.d(TAG, "item clicked")
+                val count = adapter.selectedCount
+                mActionMode?.title = "$count GIF selected"
+            }
+            override fun onItemLongClick(model: GifModel) {
+                if (BuildConfig.DEBUG) Log.d(TAG, "item long clicked")
+                if (mActionMode == null) {
+                    startSupportActionMode(this@MobileActivity)
+                    adapter.toggleSelection = true
+                }
+            }
+        }
+    } }
 
-    private var abouDialog: AboutDialog? = null
-    private var mobileTVNameDialog: MobileTVNameDialog? = null
-    private var actionModeCurrent: ActionMode? = null
-
-    private val localBroadcastReceiver = object : BroadcastReceiver() {
+    private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
                 GIPHYService.UPDATE_TRENDING -> {
-                    val cursor = GifORM(GIFTVDB(context).readableDatabase).getCursorAll(null)
-                    gifAdapter.swapCursor(cursor)
+                    val cursor = GifORM(GIFTVDB(context).readableDatabase)
+                        .getCursorAll(null)
+                    mGifAdapter.swapCursor(cursor)
                 }
                 GIPHYService.UPDATE_SEARCH -> {
-                    val cursor = GifORM(GIFTVDB(context).readableDatabase).getSearch(intent.getStringExtra("terms"))
-                    gifAdapter.swapCursor(cursor)
+                    val cursor = GifORM(GIFTVDB(context).readableDatabase)
+                        .getSearch(intent.getStringExtra("terms"))
+                    mGifAdapter.swapCursor(cursor)
                 }
             }
         }
@@ -74,73 +121,41 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
-
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(GIPHYService.UPDATE_SEARCH)
-        intentFilter.addAction(GIPHYService.UPDATE_TRENDING)
-        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, intentFilter)
-
-        val trendingIntent = Intent(GIPHYService.ACTION_GET_TRENDING, null, this, GIPHYService::class.java)
-        GIPHYService.enqueueWork(this, trendingIntent)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver)
     }
 
     override fun onStart() {
         super.onStart()
 
-        val manager = GridLayoutManager(recyclerView?.context, 2)
-        recyclerView.layoutManager = manager
-        recyclerView.itemAnimator = DefaultItemAnimator()
-        loadMoreListener = object : RecyclerPageListener(manager) {
-            override fun onLoadMore(current_page: Int) {
-                if(BuildConfig.DEBUG) Log.d("onLoadMore", "${current_page}")
-                if (currentSearchTerms.isNullOrEmpty()) {
-                    val intent = Intent(GIPHYService.ACTION_GET_TRENDING, null, this@MobileActivity, GIPHYService::class.java)
-                    GIPHYService.enqueueWork(this@MobileActivity, intent)
-                } else {
-                    val intent = Intent(GIPHYService.ACTION_GET_SEARCH, null, this@MobileActivity, GIPHYService::class.java)
-                    intent.putExtra(GIPHYService.EXTRA_TERMS, currentSearchTerms)
-                    intent.putExtra(GIPHYService.EXTRA_OFFSET, current_page * GIPHYService.PAGESIZE_SEARCH)
-                    GIPHYService.enqueueWork(this@MobileActivity, intent)
-                }
-            }
-        }.also { recyclerView?.addOnScrollListener(it) }
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(GIPHYService.UPDATE_SEARCH)
+        intentFilter.addAction(GIPHYService.UPDATE_TRENDING)
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, intentFilter)
 
-        recyclerView?.adapter = gifAdapter
-        gifAdapter.actionListener = object: GifAdapter.ActionListener {
-            override fun onItemClick(model: GifModel) {
-                if (BuildConfig.DEBUG) Log.d(TAG, "item clicked")
-                val count = gifAdapter.selectedCount
-                actionModeCurrent?.title = "$count GIF selected"
-            }
-            override fun onItemLongClick(model: GifModel) {
-                if (BuildConfig.DEBUG) Log.d(TAG, "item long clicked")
-                if (actionModeCurrent == null) {
-                    startSupportActionMode(this@MobileActivity)
-                    gifAdapter.toggleSelection = true
-                }
-            }
+        val trendingIntent = Intent(GIPHYService.ACTION_GET_TRENDING, null, this, GIPHYService::class.java)
+        GIPHYService.enqueueWork(this, trendingIntent)
+
+        recyclerView.apply {
+            layoutManager = mGridLayoutManager
+            itemAnimator = DefaultItemAnimator()
+            adapter = mGifAdapter
+            addOnScrollListener(mLoadMoreListener)
         }
 
         actionSearch.setOnClickListener {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(inputSearch?.windowToken, 0)
-            if (actionModeCurrent == null && !inputSearch?.text.isNullOrEmpty()) {
-                ACTION_search(inputSearch?.text.toString())
+            imm.hideSoftInputFromWindow(inputSearch.windowToken, 0)
+            if (mActionMode == null && !inputSearch.text.isNullOrEmpty()) {
+                xSearchTerms = inputSearch.text.toString()
             }
         }
-        inputSearch?.imeOptions = EditorInfo.IME_ACTION_SEARCH
-        inputSearch?.setOnEditorActionListener { textView, action_id, _ ->
+        inputSearch.imeOptions = EditorInfo.IME_ACTION_SEARCH
+        inputSearch.setOnEditorActionListener { editTextView, action_id, _ ->
             when (action_id) {
                 EditorInfo.IME_ACTION_SEARCH -> {
                     val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(textView.windowToken, 0)
-                    if (actionModeCurrent == null && !inputSearch?.text.isNullOrEmpty()) {
-                        ACTION_search(inputSearch?.text.toString())
+                    imm.hideSoftInputFromWindow(editTextView.windowToken, 0)
+                    if (mActionMode == null && !inputSearch?.text.isNullOrEmpty()) {
+                        xSearchTerms = inputSearch?.text.toString()
                     }
                 }
             }
@@ -149,15 +164,19 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
 
         val sharedPrefs = getSharedPreferences("giftv", Context.MODE_PRIVATE)
         if (!sharedPrefs.contains("tutorial_about")) {
-            val editor = sharedPrefs.edit()
-            editor.putBoolean("tutorial_about", true)
-            editor.apply()
-            val fragMan = supportFragmentManager
-            val ft = fragMan.beginTransaction()
-
-            abouDialog = AboutDialog()
-            abouDialog?.show(ft, "about_dialog")
+            sharedPrefs.edit().apply {
+                putBoolean("tutorial_about", true)
+                apply()
+            }
+            val ft = supportFragmentManager.beginTransaction()
+            mAboutDialog = AboutDialog()
+            mAboutDialog?.show(ft, "about_dialog")
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -168,6 +187,7 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+
             R.id.action_local_activity -> {
                 startMobileTV()
                 true
@@ -175,32 +195,28 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
 
             R.id.action_about -> {
                 val ft = supportFragmentManager.beginTransaction()
-                abouDialog = AboutDialog()
-                abouDialog?.show(ft, "about_dialog")
+                mAboutDialog = AboutDialog()
+                mAboutDialog?.show(ft, "about_dialog")
                 true
             }
+
             else -> false
         }
     }
 
     private fun startMobileTV() {
-        mobileTVNameDialog = MobileTVNameDialog()
-        mobileTVNameDialog?.actionListener = object : MobileTVNameDialog.ActionListener {
-            override fun onStartMobileTV(name: String) {
-                startMobileTV(name)
-            }
-        }
-
+        mMobileTVNameDialog = MobileTVNameDialog()
         val ft = supportFragmentManager.beginTransaction()
-        mobileTVNameDialog?.show(ft, "mobile_tv_name_dialog")
+        mMobileTVNameDialog?.show(ft, "mobile_tv_name_dialog")
     }
 
     private fun startMobileTV(name: String?) {
-        if (name != null && !name.isEmpty()) {
+        if (!name.isNullOrEmpty()) {
             val sharedPref = getSharedPreferences("giftv", Context.MODE_PRIVATE)
-            val editor = sharedPref.edit()
-            editor.putString(MobileTVActivity.EXTRA_NAME, name)
-            editor.apply()
+            sharedPref.edit().apply {
+                putString(MobileTVActivity.EXTRA_NAME, name)
+                apply()
+            }
             val intent = Intent(this, MobileTVActivity::class.java)
             intent.putExtra(Server.NAME, name)
             intent.putExtra(Server.TYPE, getString(R.string.network_service_type))
@@ -208,17 +224,9 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
         }
     }
 
-    private fun ACTION_search(query: String) {
-        currentSearchTerms = query
-        val searchIntent = Intent(GIPHYService.ACTION_GET_SEARCH, null, this, GIPHYService::class.java)
-        searchIntent.putExtra("terms", query)
-        GIPHYService.enqueueWork(this, searchIntent)
-        loadMoreListener?.onRefresh()
-    }
-
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.actionmode_multi_select, menu)
-        actionModeCurrent = mode
+        mActionMode = mode
         inputSearch?.isEnabled = false
         inputSearch?.setTextColor(ResourcesCompat.getColor(resources, R.color.black_overlay, theme))
         actionSearch.setBackgroundResource(R.color.colorPrimaryDark)
@@ -233,17 +241,8 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
         if (item.itemId == R.id.action_send) {
             if (BuildConfig.DEBUG) Log.d(TAG, "action_send")
 
-            val selectedGif = gifAdapter.selectedGIF
+            val selectedGif = mGifAdapter.selectedGIF
             if (selectedGif.isNotEmpty()) {
-                val fragMan = supportFragmentManager
-                val dialog = SendChannelDialog()
-
-                dialog.actionListener = object : SendChannelDialog.ActionListener {
-                    override fun onTVSelected(model: TCPServiceModel) {
-                        mode.finish()
-                    }
-                }
-
                 var jsonBatch: String? = null
                 try {
                     val json = JSONArray()
@@ -255,19 +254,26 @@ class MobileActivity : AppCompatActivity(), ActionMode.Callback {
                     err.printStackTrace()
                 }
 
-                val args = Bundle()
-                args.putString(GifORM.TABLE, jsonBatch)
-                args.putString("terms", currentSearchTerms)
-                dialog.arguments = args
-                dialog.show(fragMan, "send_gif_batch")
+                val dialog = SendChannelDialog().apply {
+                    actionListener = object : SendChannelDialog.ActionListener {
+                        override fun onTVSelected(model: TCPServiceModel) {
+                            mode.finish()
+                        }
+                    }
+                    arguments = Bundle().apply {
+                        putString(GifORM.TABLE, jsonBatch)
+                        putString("terms", xSearchTerms)
+                    }
+                }
+                dialog.show(supportFragmentManager, "send_gif_batch")
             }
         }
         return false
     }
 
     override fun onDestroyActionMode(mode: ActionMode) {
-        actionModeCurrent = null
-        gifAdapter.clearSelections()
+        mActionMode = null
+        mGifAdapter.clearSelections()
         inputSearch?.isEnabled = true
         inputSearch?.setTextColor(ResourcesCompat.getColor(resources,R.color.colorPrimary,theme))
         actionSearch.setBackgroundResource(R.color.colorAccent)

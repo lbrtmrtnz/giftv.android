@@ -63,7 +63,7 @@
                             android:focusable="true"
                             android:focusableInTouchMode="true"
                             android:layout_toStartOf="@+id/action_search">
-                            <androidx.appcompat.widget.AppCompatEditText android:id="@+id/search_input"
+                            <androidx.appcompat.widget.AppCompatEditText android:id="@+id/input_search"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/colorPrimary"
@@ -71,8 +71,8 @@
                                 android:hint="@string/search_for_gifs"
                                 android:lines="1"
                                 android:singleLine="true"
-                                android:nextFocusUp="@id/search_input"
-                                android:nextFocusLeft="@id/search_input"/>
+                                android:nextFocusUp="@id/input_search"
+                                android:nextFocusLeft="@id/input_search"/>
                         </FrameLayout>
                         <FrameLayout android:id="@id/action_search"
                             android:layout_width="wrap_content"

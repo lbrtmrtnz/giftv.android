@@ -16,7 +16,6 @@ import android.view.WindowManager
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.android.volley.RequestQueue
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.Volley
 import com.icenerd.data.Installation
@@ -46,7 +45,7 @@ class MobileTVActivity : AppCompatActivity() {
     private lateinit var gifImageView: GifImageView
 
     private var networkServer: Server? = null
-    private var requestQueue: RequestQueue? = null
+    private val requestQueue by lazy { Volley.newRequestQueue(this) }
     private var gifLoader: GifLoader? = null
     private var listGIF: List<GifModel> = ArrayList()
     private var timer: Timer? = null
@@ -72,32 +71,31 @@ class MobileTVActivity : AppCompatActivity() {
             return ssid
         }
 
-    private var localBroadcastManager: LocalBroadcastManager? = null
-    private val localBroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == SIGNAL_CHANGE_CHANNEL) {
-                if (BuildConfig.DEBUG) Log.d(TAG, SIGNAL_CHANGE_CHANNEL)
-                val db = GIFTVDB(context).readableDatabase
-                val statusORM = StatusORM(db)
-                val updateStatus = statusORM.findWhere("1 = 1 ORDER BY ${StatusORM.COL_CREATED_ON} desc limit 1")
-                ServerThread.STATE = updateStatus
-                db.close()
+    private val localBroadcastManager by lazy { LocalBroadcastManager.getInstance(this) }
+    private val localBroadcastReceiver by lazy { object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action == SIGNAL_CHANGE_CHANNEL) {
+                    if (BuildConfig.DEBUG) Log.d(TAG, SIGNAL_CHANGE_CHANNEL)
+                    val db = GIFTVDB(context).readableDatabase
+                    val statusORM = StatusORM(db)
+                    val updateStatus = statusORM.findWhere("1 = 1 ORDER BY ${StatusORM.COL_CREATED_ON} desc limit 1")
+                    ServerThread.STATE = updateStatus
 
-                if (updateStatus == null) {
-                    Log.w(TAG, "STATUS NOT FOUND")
-                } else {
-                    if (BuildConfig.DEBUG) {
-                        try {
-                            Log.d(TAG, "Status: ${updateStatus.getJSONObject().toString(1)}")
-                        } catch (err: JSONException) {
-                            err.printStackTrace()
+                    if (updateStatus == null) {
+                        Log.w(TAG, "STATUS NOT FOUND")
+                    } else {
+                        if (BuildConfig.DEBUG) {
+                            try {
+                                Log.d(TAG, "Status: ${updateStatus.getJSONObject().toString(1)}")
+                            } catch (err: JSONException) {
+                                err.printStackTrace()
+                            }
                         }
-
-                    }
-                    when (updateStatus.channel_type) {
-                        StatusORM.CHANNEL_GIPHY -> {
-                            if (BuildConfig.DEBUG) Log.d(TAG, "GOT A GIPHY!")
-                            taskGIFLoad()
+                        when (updateStatus.channel_type) {
+                            StatusORM.CHANNEL_GIPHY -> {
+                                if (BuildConfig.DEBUG) Log.d(TAG, "GOT A GIPHY!")
+                                taskGIFLoad()
+                            }
                         }
                     }
                 }
@@ -115,15 +113,12 @@ class MobileTVActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         val ssid = currentSSID
-        if (ssid != null && !ssid.isEmpty()) {
+        if (!ssid.isNullOrEmpty()) {
             findViewById<TextView>(R.id.text_ssid).text = ssid
         } else {
             findViewById<TextView>(R.id.text_ssid).setText(R.string.tv_ssid_not_found)
         }
-
-        localBroadcastManager = LocalBroadcastManager.getInstance(this)
-        requestQueue = Volley.newRequestQueue(this)
-        gifLoader = GifLoader(requestQueue!!, object : GifLoader.GifCache {
+        gifLoader = GifLoader(requestQueue, object : GifLoader.GifCache {
             private val mCache = LruCache<String, GifDrawable>(BATCH_SIZE)
             override fun putGif(url: String, gif: GifDrawable) {
                 mCache.put(url, gif)
@@ -136,19 +131,15 @@ class MobileTVActivity : AppCompatActivity() {
 
         val nsdMan = getSystemService(Context.NSD_SERVICE) as NsdManager
         val nsName = intent.getStringExtra(Server.NAME)
-        var nsType: String? = intent.getStringExtra(Server.TYPE)
+        var nsType = intent.getStringExtra(Server.TYPE)
 
-        if (nsName == null || nsName.isEmpty()) {
+        if (nsName.isNullOrEmpty()) {
             finish()
         } else {
             findViewById<TextView>(R.id.text_tv_name).text = nsName
-            if (nsType == null || nsType.isEmpty()) nsType = getString(R.string.network_service_type)
+            if (!nsType.isNullOrEmpty()) nsType = getString(R.string.network_service_type)
 
-            networkServer = Server(
-                    nsdMan,
-                    nsName,
-                    nsType!!
-            )
+            networkServer = Server(nsdMan, nsName, nsType!!)
             networkServer?.handler = ClientMessageHandler(this)
         }
     }
@@ -157,7 +148,7 @@ class MobileTVActivity : AppCompatActivity() {
         super.onResume()
         val intentFilter = IntentFilter()
         intentFilter.addAction(SIGNAL_CHANGE_CHANNEL)
-        localBroadcastManager?.registerReceiver(localBroadcastReceiver, intentFilter)
+        localBroadcastManager.registerReceiver(localBroadcastReceiver, intentFilter)
         if (networkServer != null) {
             ServerThread.STATE = StatusModel(Installation.getUUID(this)!!)
             networkServer?.startServer(SecretKeySpec(Base64.decode(getString(R.string.network_service_secret), Base64.NO_CLOSE or Base64.NO_WRAP), "AES"))
@@ -167,7 +158,7 @@ class MobileTVActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         timer = null
-        localBroadcastManager?.unregisterReceiver(localBroadcastReceiver)
+        localBroadcastManager.unregisterReceiver(localBroadcastReceiver)
         networkServer?.stopServer()
     }
 
@@ -201,12 +192,13 @@ class MobileTVActivity : AppCompatActivity() {
         } else {
             if (BuildConfig.DEBUG) Log.d(TAG, listGIF.size.toString() + " Gifs found!")
             findViewById<View>(R.id.frame_gif).visibility = View.VISIBLE
-            timer = Timer()
-            timer?.scheduleAtFixedRate(object : TimerTask() {
-                override fun run() {
-                    runOnUiThread { gifNext() }
-                }
-            }, 0, 3000)
+            timer = Timer().apply {
+                scheduleAtFixedRate(object : TimerTask() {
+                    override fun run() {
+                        runOnUiThread { gifNext() }
+                    }
+                }, 0, 3000)
+            }
         }
     }
 
@@ -216,19 +208,22 @@ class MobileTVActivity : AppCompatActivity() {
             taskGIFLoad()
         } else if (listGIF.isEmpty()) {
             val model = listGIF[nextPosition]
-            val container = gifLoader!![if (model.size < SIZE_LIMIT_BYTES) model.original!! else model.downsized!!, object : GifLoader.GifListener {
+            val listener = object : GifLoader.GifListener {
                 override fun onResponse(response: GifLoader.GifContainer, isImmediate: Boolean) {
                     gifLoad(response)
                 }
-                override fun onErrorResponse(error: VolleyError) {}
-            }]
-            gifLoad(container)
+                override fun onErrorResponse(error: VolleyError) {
+                    if (BuildConfig.DEBUG) error.printStackTrace()
+                }
+            }
+            gifLoader?.let {
+                val container = it[if (model.size < SIZE_LIMIT_BYTES) model.original!! else model.downsized!!, listener]
+                gifLoad(container)
+            }
 
-            var i = nextPosition + 1
-            while (i < nextPosition + BATCH_SIZE / 2 && i < listGIF.size) {
-                val preModel = listGIF[i]
-                gifLoader!![if (preModel.size < SIZE_LIMIT_BYTES) preModel.original?:"" else preModel.downsized?:"", null]
-                i++
+            for (i in (nextPosition+1) until Math.min(nextPosition + BATCH_SIZE / 2, listGIF.size)) {
+                val loadModel = listGIF[i]
+                gifLoader?.let { it[if (loadModel.size < SIZE_LIMIT_BYTES) loadModel.original?:"" else loadModel.downsized?:"", null] }
             }
         }
         nextPosition++
