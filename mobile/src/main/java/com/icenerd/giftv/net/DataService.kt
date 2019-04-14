@@ -24,13 +24,11 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.Socket
 import java.security.InvalidKeyException
-import java.security.NoSuchAlgorithmException
 import java.util.*
 
 import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
 import javax.crypto.IllegalBlockSizeException
-import javax.crypto.NoSuchPaddingException
 import javax.crypto.spec.SecretKeySpec
 
 
@@ -51,13 +49,10 @@ class DataService : JobIntentService() {
         }
     }
 
-    private var secretKey: SecretKeySpec? = null
+    private val secretKey: SecretKeySpec by lazy { SecretKeySpec(Base64.decode(getString(R.string.network_service_secret), Base64.NO_CLOSE or Base64.NO_WRAP), "AES") }
     private val cipher by lazy { Cipher.getInstance("AES") }
 
     override fun onHandleWork(intent: Intent) {
-        if (secretKey == null) {
-            secretKey = SecretKeySpec(Base64.decode(getString(R.string.network_service_secret), Base64.NO_CLOSE or Base64.NO_WRAP), "AES")
-        }
         try {
             when(intent.action) {
                 ACTION_IDENTIFY -> {
@@ -118,7 +113,7 @@ class DataService : JobIntentService() {
 
 
             var data: String = incoming.readLine()
-            while (!data.isEmpty()) {
+            while (data.isNotEmpty()) {
 
                 try {
                     cipher.init(Cipher.DECRYPT_MODE, secretKey)
@@ -132,41 +127,39 @@ class DataService : JobIntentService() {
                     if (BuildConfig.DEBUG) err.printStackTrace()
                 }
 
-                if (data.equals(Server.SIGNAL_CLOSE)) {
-                    if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_CLOSE received")
-                    break
-                }
-                if (data.equals(Server.SIGNAL_IDENTIFY)) {
-                    if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_IDENTIFY received")
-                    data = incoming.readLine()
-                    if (!data.isEmpty()) {
+                when (data) {
+                    Server.SIGNAL_CLOSE -> {
+                        if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_CLOSE received")
+                    }
+                    Server.SIGNAL_IDENTIFY -> {
+                        if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_IDENTIFY received")
+                        data = incoming.readLine()
+                        if (data.isNotEmpty()) {
+                            try {
+                                cipher.init(Cipher.DECRYPT_MODE, secretKey)
+                                data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
+                                if (BuildConfig.DEBUG) Log.d("SIGNAL_IDENTIFY", data)
+                            } catch (err: BadPaddingException) {
+                                if (BuildConfig.DEBUG) err.printStackTrace()
+                            } catch (err: IllegalBlockSizeException) {
+                                if (BuildConfig.DEBUG) err.printStackTrace()
+                            } catch (err: InvalidKeyException) {
+                                if (BuildConfig.DEBUG) err.printStackTrace()
+                            }
 
-                        try {
-                            cipher.init(Cipher.DECRYPT_MODE, secretKey)
-                            data = String(cipher.doFinal(Base64.decode(data, Base64.NO_CLOSE or Base64.NO_WRAP)))
-                            if (BuildConfig.DEBUG) Log.d("SIGNAL_IDENTIFY", data)
-                        } catch (err: BadPaddingException) {
-                            if (BuildConfig.DEBUG) err.printStackTrace()
-                        } catch (err: IllegalBlockSizeException) {
-                            if (BuildConfig.DEBUG) err.printStackTrace()
-                        } catch (err: InvalidKeyException) {
-                            if (BuildConfig.DEBUG) err.printStackTrace()
+                            handleServiceInfo(JSONObject(data))
+                            if (BuildConfig.DEBUG) Log.d(TAG, "TCP_identify handled")
                         }
-
-                        handleServiceInfo(JSONObject(data))
                     }
                 }
-
             }
-
-            if (BuildConfig.DEBUG) Log.d(TAG, "TCP_identify success")
 
         } catch (err: IOException) {
             if (BuildConfig.DEBUG) err.printStackTrace()
         } catch (err: JSONException) {
             if (BuildConfig.DEBUG) err.printStackTrace()
         } finally {
-            if (socket != null && !socket.isClosed) {
+            if (socket?.isClosed == false) {
                 try {
                     socket.close()
                     if (BuildConfig.DEBUG) Log.d(TAG, "Socket closed")
@@ -191,6 +184,7 @@ class DataService : JobIntentService() {
             val incoming = BufferedReader(InputStreamReader(socket.getInputStream()))
 
             try {
+
                     cipher.init(Cipher.ENCRYPT_MODE, secretKey)
 
                     outgoing.println(Base64.encodeToString(cipher.doFinal(Server.SIGNAL_JSON.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
@@ -201,6 +195,7 @@ class DataService : JobIntentService() {
 
                     outgoing.println(Base64.encodeToString(cipher.doFinal(Server.SIGNAL_CLOSE.toByteArray()), Base64.NO_CLOSE or Base64.NO_WRAP))
                     if (BuildConfig.DEBUG) Log.d(TAG, "SIGNAL_CLOSE sent")
+
             } catch (err: BadPaddingException) {
                 if (BuildConfig.DEBUG) err.printStackTrace()
             } catch (err: IllegalBlockSizeException) {
@@ -210,7 +205,7 @@ class DataService : JobIntentService() {
             }
 
             var data: String = incoming.readLine()
-            while (!data.isEmpty()) {
+            while (data.isNotEmpty()) {
 
                 try {
                     cipher.init(Cipher.DECRYPT_MODE, secretKey)
@@ -264,7 +259,7 @@ class DataService : JobIntentService() {
             } else {
                 val db = GIFTVDB(this).writableDatabase
                 val orm = TCPServiceORM(db)
-                val num = orm.deleteWhere(String.format("%s='%s'", TCPServiceORM.COL_NAME, name))
+                val num = orm.deleteWhere("${TCPServiceORM.COL_NAME} = '$name'")
                 db.close()
                 num
             }
@@ -277,11 +272,12 @@ class DataService : JobIntentService() {
             val statusModel = handleStatus(json.getJSONObject(StatusORM.TABLE))
             if (statusModel != null) {
                 if (json.has("name") && json.has("host") && json.has("port")) {
-                    val serviceInfoModel = TCPServiceModel()
-                    serviceInfoModel.name = json.getString("name")
-                    serviceInfoModel.host = json.getString("host")
-                    serviceInfoModel.port = json.getInt("port")
-                    serviceInfoModel.id_status = statusModel.getUUID()
+                    val serviceInfoModel = TCPServiceModel().apply {
+                        name = json.getString("name")
+                        host = json.getString("host")
+                        port = json.getInt("port")
+                        id_status = statusModel.getUUID()
+                    }
                     val db = GIFTVDB(this).writableDatabase
                     val orm = TCPServiceORM(db)
                     if (orm.save(serviceInfoModel)) {
@@ -303,10 +299,10 @@ class DataService : JobIntentService() {
 
         val db = GIFTVDB(this).writableDatabase
         val statusORM = StatusORM(db)
-        val mbSaved = statusORM.save(model)
+        val wasSaved = statusORM.save(model)
         db.close()
 
-        return if (mbSaved) model else null
+        return if (wasSaved) model else null
     }
 
 }

@@ -13,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.icenerd.data.Installation
 import com.icenerd.giftv.BuildConfig
@@ -38,32 +37,28 @@ class SendChannelDialog : AppCompatDialogFragment(), NsdHelper.NsdListener, TCPS
         fun onTVSelected(model: TCPServiceModel)
     }
     private val nsdHelper: NsdHelper by lazy {
-        val nsdMan = context?.getSystemService(Context.NSD_SERVICE) as NsdManager
+        val nsdMan = context!!.getSystemService(Context.NSD_SERVICE) as NsdManager
         val nsType = getString(R.string.network_service_type)
         NsdHelper(nsdMan, nsType)
     }
-    private lateinit var dialogView: View
-    private val mProgressBar by lazy { dialogView.findViewById<ProgressBar>(R.id.progress_bar) }
-    private val mRecyclerView by lazy { dialogView.findViewById<RecyclerView>(R.id.recyclerview).apply {
-        setHasFixedSize(true)
-        layoutManager = LinearLayoutManager(context)
-        itemAnimator = DefaultItemAnimator()
-    } }
 
-    private val mAdapter by lazy { TCPServiceAdapter(this) }
-
-    private val mActionCancel by lazy { dialogView.findViewById<View>(R.id.action_cancel) }
+    private val mProgressBar by lazy { view!!.findViewById<ProgressBar>(R.id.progress_bar) }
+    private val mRecyclerView by lazy { view!!.findViewById<RecyclerView>(R.id.recyclerview) }
+    private val mActionCancel by lazy { view!!.findViewById<View>(R.id.action_cancel) }
+    private val mTCPServiceAdapter by lazy { TCPServiceAdapter(this) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.dialog_send_channel, container, false).also {
-            dialogView = it
-        }
+        return inflater.inflate(R.layout.dialog_send_channel, container, false)
     }
 
     override fun onStart() {
         super.onStart()
         mActionCancel.setOnClickListener { dismiss() }
-        mRecyclerView.adapter = mAdapter
+        mRecyclerView.apply {
+            adapter = mTCPServiceAdapter
+            itemAnimator = DefaultItemAnimator()
+            setHasFixedSize(true)
+        }
     }
 
     override fun onResume() {
@@ -95,9 +90,10 @@ class SendChannelDialog : AppCompatDialogFragment(), NsdHelper.NsdListener, TCPS
             }
 
             try {
-                val data = JSONObject()
-                data.put("host", serviceInfo.host.hostAddress)
-                data.put("port", serviceInfo.port)
+                val data = JSONObject().apply {
+                    put("host", serviceInfo.host.hostAddress)
+                    put("port", serviceInfo.port)
+                }
                 intent.putExtra("data", data.toString())
             } catch (err: JSONException) {
                 if(BuildConfig.DEBUG) err.printStackTrace()
@@ -112,18 +108,17 @@ class SendChannelDialog : AppCompatDialogFragment(), NsdHelper.NsdListener, TCPS
     }
 
     override fun nsdServiceLost(serviceInfo: NsdServiceInfo?) {
-        if (serviceInfo == null) {
-            if(BuildConfig.DEBUG) Log.d(TAG, "nsdServiceLost(serviceInfo == null)")
-        } else {
+        val serviceName = serviceInfo?.serviceName
+        if(BuildConfig.DEBUG) Log.d(TAG, "nsdServiceLost($serviceName)")
 
+        if (!serviceName.isNullOrEmpty()) {
             val intent = Intent(DataService.ACTION_LOST, null, context, DataService::class.java)
-            intent.putExtra("name", serviceInfo.serviceName)
+            intent.putExtra("name", serviceName)
             if (Build.VERSION.SDK_INT >= 21) {
                 context?.let { DataService.enqueueWork(it, intent) }
             } else {
                 context?.startService(intent)
             }
-
         }
     }
 

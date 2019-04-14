@@ -4,6 +4,7 @@ package com.icenerd.giphy.data.adapter
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -103,10 +104,8 @@ class GifAdapter() : CursorRecyclerAdapter<GifAdapter.ViewHolder>(null) {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = getItem(position)
-        if(item!=null) {
-            val gameModel = GifModel(item)
-            holder.bind(gameModel, actionListener)
+        getItem(position).let {
+            holder.bind(if (it == null) null else GifModel(it), actionListener)
         }
     }
 
@@ -118,7 +117,7 @@ class GifAdapter() : CursorRecyclerAdapter<GifAdapter.ViewHolder>(null) {
         val giphyItemGif: GifImageView = view.findViewById(R.id.giphy_item_gif)
         val progressBar: ProgressBar = view.findViewById(R.id.progress_bar)
 
-        fun bind(model: GifModel, listener: ActionListener?) {
+        fun bind(gifModel: GifModel?, listener: ActionListener?) {
             val drawable = giphyItemGif.drawable as GifDrawable?
             if (drawable != null && drawable.isPlaying) drawable.stop()
 
@@ -128,53 +127,56 @@ class GifAdapter() : CursorRecyclerAdapter<GifAdapter.ViewHolder>(null) {
             else
                 ResourcesCompat.getColor(ctx.resources, R.color.colorAccent, ctx.theme)
 
-            frameContainerGifItem.setBackgroundColor(if(mraGIPHYID.get(model)?:false) accentColor else Color.TRANSPARENT)
+            if (gifModel == null) Log.e("GifAdapter", "gifModel IS NULL!")
+            frameContainerGifItem.visibility = if (gifModel == null) View.INVISIBLE else View.VISIBLE
+            gifModel?.let { model ->
+                frameContainerGifItem.setBackgroundColor(if (mraGIPHYID.containsKey(model)) accentColor else Color.TRANSPARENT)
 
-            giphyItemGif.visibility = View.INVISIBLE
-            progressBar.visibility = View.INVISIBLE
-            giphyItemNetImg.setImageUrl(model.fixed_width_small_still, imageLoader)
-            containerGifItem.setOnClickListener {
-                if (toggleSelection) {
-                    mraGIPHYID[model] = !(mraGIPHYID[model]?:false)
-                    frameContainerGifItem.setBackgroundColor(if(mraGIPHYID[model]?:false) accentColor else Color.TRANSPARENT)
-                }
-                val container = gifLoader!![model.fixed_width?:"", object : GifLoader.GifListener {
-                    override fun onResponse(response: GifLoader.GifContainer, isImmediate: Boolean) {
-                        giphyItemGif.setImageDrawable(response.gif)
-                        val itemDrawable = giphyItemGif.drawable as GifDrawable?
-                        if (itemDrawable == null) {
-                            giphyItemGif.visibility = View.INVISIBLE
-                        } else {
-                            giphyItemGif.visibility = View.VISIBLE
-                            if (!itemDrawable.isPlaying) itemDrawable.start()
-                        }
-                        progressBar.visibility = View.INVISIBLE
+                giphyItemGif.visibility = View.INVISIBLE
+                progressBar.visibility = View.INVISIBLE
+                giphyItemNetImg.setImageUrl(model.urlStill, imageLoader)
+                containerGifItem.setOnClickListener {
+                    if (toggleSelection) {
+                        mraGIPHYID[model] = !(mraGIPHYID[model] ?: false)
+                        frameContainerGifItem.setBackgroundColor(if (mraGIPHYID.containsKey(model)) accentColor else Color.TRANSPARENT)
                     }
+                    val container = gifLoader!![model.fixed_width ?: "", object : GifLoader.GifListener {
+                        override fun onResponse(response: GifLoader.GifContainer, isImmediate: Boolean) {
+                            giphyItemGif.setImageDrawable(response.gif)
+                            val itemDrawable = giphyItemGif.drawable as GifDrawable?
+                            if (itemDrawable == null) {
+                                giphyItemGif.visibility = View.INVISIBLE
+                            } else {
+                                giphyItemGif.visibility = View.VISIBLE
+                                if (!itemDrawable.isPlaying) itemDrawable.start()
+                            }
+                            progressBar.visibility = View.INVISIBLE
+                        }
 
-                    override fun onErrorResponse(error: VolleyError) {}
-                }]
+                        override fun onErrorResponse(error: VolleyError) {}
+                    }]
 
-                giphyItemGif.setImageDrawable(container.gif)
-                val itemDrawable = giphyItemGif.drawable as GifDrawable?
-                if (itemDrawable == null) {
-                    giphyItemGif.visibility = View.INVISIBLE
-                    progressBar.visibility = View.VISIBLE
-                } else {
-                    giphyItemGif.visibility = View.VISIBLE
-                    if (!itemDrawable.isPlaying) itemDrawable.start()
+                    giphyItemGif.setImageDrawable(container.gif)
+                    val itemDrawable = giphyItemGif.drawable as GifDrawable?
+                    if (itemDrawable == null) {
+                        giphyItemGif.visibility = View.INVISIBLE
+                        progressBar.visibility = View.VISIBLE
+                    } else {
+                        giphyItemGif.visibility = View.VISIBLE
+                        if (!itemDrawable.isPlaying) itemDrawable.start()
+                    }
+                    listener?.onItemClick(model)
                 }
-                listener?.onItemClick(model)
-            }
-            containerGifItem.setOnLongClickListener {
-                if (listener != null) {
-                    listener.onItemLongClick(model)
-                    containerGifItem.callOnClick()
-                    true
-                } else {
-                    false
+                containerGifItem.setOnLongClickListener {
+                    if (listener != null) {
+                        listener.onItemLongClick(model)
+                        containerGifItem.callOnClick()
+                        true
+                    } else {
+                        false
+                    }
                 }
             }
-
         }
     }
 }

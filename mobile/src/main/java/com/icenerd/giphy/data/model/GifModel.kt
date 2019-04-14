@@ -32,6 +32,10 @@ class GifModel : NetworkModel {
 
     private var mHashCode = 0
 
+    val urlStill: String
+        get() = fixed_width_small_still?:fixed_width_still?:downsized_still?:"UNKNOWN"
+
+
     constructor(cursor: Cursor) {
         _id = getString(cursor, GifORM.COL_ID)
         if (mHashCode == 0) {
