@@ -17,30 +17,34 @@ class SetupActivity : Activity() {
             var ssid: String? = null
             val connManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val networkInfo = connManager.activeNetworkInfo
-            if (networkInfo.isConnected && networkInfo.type == ConnectivityManager.TYPE_WIFI) {
+            if (networkInfo.isConnected) {
                 val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-                val connectionInfo = wifiManager.connectionInfo
-                if (connectionInfo != null && !connectionInfo.ssid.isEmpty()) {
-                    ssid = connectionInfo.ssid
+                wifiManager.connectionInfo?.let { connectionInfo ->
+                    if (connectionInfo.ssid.isNotEmpty()) {
+                        ssid = connectionInfo.ssid
+                    }
                 }
             }
             return ssid
         }
+    private val preferences by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        getSharedPreferences("giftv", Context.MODE_PRIVATE)
+    }
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setup)
     }
     override fun onStart() {
         super.onStart()
-        val sharedPref = getSharedPreferences("giftv", Context.MODE_PRIVATE)
-        findViewById<TextView>(R.id.input_name).text = sharedPref.getString(GifTVActivity.EXTRA_NAME, generateRandomName())
+        findViewById<TextView>(R.id.input_name).text = preferences.getString(GifTVActivity.EXTRA_NAME, generateRandomName())
         findViewById<TextView>(R.id.text_ssid).text = currentSSID
         findViewById<Button>(R.id.action_generate_random_name).setOnClickListener { findViewById<TextView>(R.id.input_name).text = generateRandomName() }
         findViewById<Button>(R.id.action_start).setOnClickListener {
             val name = findViewById<TextView>(R.id.input_name).text.toString()
-            val editor = sharedPref.edit()
-            editor.putString(GifTVActivity.EXTRA_NAME, name)
-            editor.apply()
+            preferences.edit().apply {
+                putString(GifTVActivity.EXTRA_NAME, name)
+                apply()
+            }
             val intent = Intent(this@SetupActivity, GifTVActivity::class.java)
             intent.putExtra(Server.NAME, name)
             intent.putExtra(Server.TYPE, getString(R.string.network_service_type))

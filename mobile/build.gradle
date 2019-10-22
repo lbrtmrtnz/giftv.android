@@ -5,7 +5,6 @@ Properties keyRing = new Properties()
 keyRing.load(new FileInputStream(rootProject.file('android.giftv.keyring.example')))
 android {
     compileSdkVersion 28
-
     defaultConfig {
         applicationId "com.icenerd.giftv"
         minSdkVersion 21
@@ -43,14 +42,17 @@ android {
     }
 }
 dependencies {
-    implementation "androidx.appcompat:appcompat:1.0.2"
+    implementation "androidx.appcompat:appcompat:1.1.0"
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
-    implementation "com.google.android.material:material:1.0.0"
     implementation "androidx.cardview:cardview:1.0.0"
-    implementation 'com.squareup.okhttp3:okhttp:3.14.0'
+
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation 'com.android.volley:volley:1.1.1'
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.16'
+    implementation "com.google.android.material:material:1.0.0"
+    implementation 'com.squareup.okhttp3:okhttp:3.14.2'
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$vKotlin"
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.19'
 }
 repositories {
     mavenCentral()

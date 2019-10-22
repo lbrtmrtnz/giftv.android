@@ -14,9 +14,7 @@ import java.util.*
 
 class GifLoader(private val requestQueue: RequestQueue?, private val cache: GifCache) {
     private fun throwIfNotOnMainThread() {
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            throw IllegalStateException("GifLoader must be invoked from the main thread.")
-        }
+        check(Looper.myLooper() == Looper.getMainLooper()) { "GifLoader must be invoked from the main thread." }
     }
 
     private var batchResponseDelay = 100
@@ -46,13 +44,11 @@ class GifLoader(private val requestQueue: RequestQueue?, private val cache: GifC
         } else {
             val imageContainer = GifContainer(null, requestUrl, imageListener)
             imageListener?.onResponse(imageContainer, true)
-            val request = requestsInFlight[requestUrl]
-            if (request != null) {
+            requestsInFlight[requestUrl]?.let { request ->
                 request.addContainer(imageContainer)
                 return imageContainer
             }
             val newRequest = makeGifRequest(requestUrl)
-
             requestQueue?.add(newRequest)
             requestsInFlight[requestUrl] = BatchedGifRequest(imageContainer)
             return imageContainer

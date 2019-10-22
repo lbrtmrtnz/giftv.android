@@ -1,168 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary">
 
-    <LinearLayout android:orientation="horizontal"
-        android:layout_width="match_parent"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/vertical_25"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/horizontal_2x"
-        android:paddingRight="@dimen/horizontal_2x"
-        android:paddingTop="@dimen/horizontal_2x"
-        android:paddingBottom="@dimen/horizontal_2x"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:weightSum="1.0">
-        <androidx.cardview.widget.CardView android:id="@+id/container_status"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="0.7"
-            android:backgroundTint="@android:color/white">
-            <LinearLayout android:orientation="vertical"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.25" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/vertical_75"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.75" />
+
+    <androidx.cardview.widget.CardView android:id="@+id/container_status"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:backgroundTint="@android:color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/vertical_25"
+        app:layout_constraintEnd_toStartOf="@id/vertical_75"
+        app:layout_constraintDimensionRatio="16:9">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/horizontal_2x"
+                android:layout_marginBottom="@dimen/vertical_small"
+                android:paddingStart="@dimen/horizontal_2x"
+                android:paddingEnd="@dimen/horizontal_2x"
+                android:paddingTop="@dimen/vertical_2x"
+                android:paddingBottom="@dimen/vertical_2x"
+                android:textColor="@color/colorPrimary"
+                android:textSize="@dimen/text_large"
+                android:textStyle="bold"
+                android:text="@string/setup_giftv"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <androidx.appcompat.widget.AppCompatImageView android:id="@+id/ic_router"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/horizontal"
+                android:src="@drawable/ic_router"
+                android:backgroundTint="@color/colorAccent"
+                app:layout_constraintStart_toEndOf="@id/text_status"
+                app:layout_constraintTop_toTopOf="@id/text_status"
+                app:layout_constraintBottom_toBottomOf="@id/text_status"/>
+
+            <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_ssid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimary"
+                android:textSize="@dimen/text_small"
+                android:text="@string/tv_ssid_not_found"
+                app:layout_constraintStart_toEndOf="@id/ic_router"
+                app:layout_constraintTop_toTopOf="@id/text_status"
+                app:layout_constraintBottom_toBottomOf="@id/text_status"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/horizontal_2x"
-                android:paddingRight="@dimen/horizontal_2x"
-                android:paddingTop="@dimen/vertical_2x"
-                android:paddingBottom="@dimen/vertical_2x">
-                <LinearLayout android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/vertical_small"
-                    android:gravity="center_vertical">
-                    <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_status"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/horizontal_2x"
-                        android:textColor="@color/colorPrimary"
-                        android:textSize="@dimen/text_large"
-                        android:textStyle="bold"
-                        android:text="@string/setup_giftv"/>
-                    <LinearLayout android:orientation="vertical"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-                        <LinearLayout android:orientation="horizontal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical">
-                            <androidx.appcompat.widget.AppCompatImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="@dimen/horizontal"
-                                android:src="@drawable/ic_router"
-                                android:backgroundTint="@color/colorAccent"/>
-                            <androidx.appcompat.widget.AppCompatTextView android:id="@+id/text_ssid"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/colorPrimary"
-                                android:textSize="@dimen/text_medium"
-                                android:text="@string/tv_ssid_not_found"/>
-                        </LinearLayout>
-                    </LinearLayout>
+                android:paddingStart="@dimen/horizontal_2x"
+                android:paddingEnd="@dimen/horizontal_2x"
+                android:text="@string/tv_setup"
+                android:textSize="@dimen/text_medium"
+                android:textColor="@color/colorPrimary"
+                app:layout_constraintTop_toBottomOf="@id/text_status"/>
 
-                </LinearLayout>
-                <FrameLayout android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/tv_setup"
-                        android:textSize="@dimen/text_medium"
-                        android:textColor="@color/colorPrimary" />
-                </FrameLayout>
+            <androidx.appcompat.widget.AppCompatButton android:id="@id/action_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:nextFocusLeft="@id/action_generate_random_name"
+                android:nextFocusUp="@id/action_generate_random_name"
+                android:nextFocusForward="@id/input_name"
+                android:layout_marginEnd="@dimen/horizontal_2x"
+                android:layout_marginBottom="@dimen/vertical_2x"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingStart="@dimen/horizontal"
+                android:paddingEnd="@dimen/horizontal"
+                android:paddingTop="@dimen/vertical"
+                android:paddingBottom="@dimen/vertical"
+                android:text="@string/action_start"
+                android:background="@drawable/tv_bg_button"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
+            <androidx.appcompat.widget.AppCompatButton android:id="@+id/action_generate_random_name"
+                android:nextFocusLeft="@+id/input_name"
+                android:nextFocusDown="@+id/action_start"
+                android:nextFocusRight="@id/action_start"
+                android:nextFocusForward="@id/action_start"
+                android:layout_marginEnd="@dimen/horizontal_2x"
+                android:layout_marginBottom="@dimen/vertical_2x"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:paddingTop="@dimen/vertical"
+                android:paddingBottom="@dimen/vertical"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="@string/action_generate_random_name"
+                android:textColor="@color/colorAccent"
+                android:background="@drawable/tv_bg_button_form"
+                app:layout_constraintBottom_toTopOf="@id/action_start"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
+            <androidx.appcompat.widget.AppCompatTextView android:id="@+id/activity_setup_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="@string/activity_setup_name"
+                android:textSize="@dimen/text_medium"
+                android:textColor="@color/colorPrimaryDark"
+                android:paddingStart="@dimen/horizontal_2x"
+                android:paddingEnd="@dimen/horizontal_2x"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="@id/action_generate_random_name"/>
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="@dimen/vertical_2x"
-                    android:layout_marginBottom="@dimen/vertical_2x">
+            <androidx.appcompat.widget.AppCompatEditText android:id="@id/input_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/horizontal_2x"
+                android:paddingEnd="@dimen/horizontal_2x"
+                android:layout_marginStart="@dimen/horizontal"
+                android:layout_marginEnd="@dimen/horizontal"
+                android:nextFocusRight="@+id/action_generate_random_name"
+                android:nextFocusDown="@id/action_generate_random_name"
+                android:nextFocusForward="@id/action_generate_random_name"
+                android:textColor="@color/colorPrimary"
+                android:textColorHint="@android:color/darker_gray"
+                android:textSize="@dimen/text_medium"
+                android:backgroundTint="@color/colorAccent"
+                android:hint="@string/activity_setup_hint_name"
+                app:layout_constraintStart_toEndOf="@id/activity_setup_name"
+                app:layout_constraintEnd_toStartOf="@id/action_start"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="@id/action_generate_random_name"/>
 
-                    <androidx.appcompat.widget.AppCompatButton android:id="@+id/action_generate_random_name"
-                        android:nextFocusLeft="@+id/input_name"
-                        android:nextFocusDown="@+id/action_start"
-                        android:nextFocusRight="@id/action_start"
-                        android:nextFocusForward="@id/action_start"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minHeight="0dp"
-                        android:paddingTop="@dimen/vertical"
-                        android:paddingBottom="@dimen/vertical"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:text="@string/action_generate_random_name"
-                        android:textColor="@color/colorAccent"
-                        android:background="@drawable/tv_bg_button_form" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 
-                    <LinearLayout android:orientation="horizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_toStartOf="@id/action_generate_random_name"
-                        android:layout_centerVertical="true"
-                        android:weightSum="1.0">
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="@dimen/width_powered_by"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/powered_by_giphy"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-                        <androidx.appcompat.widget.AppCompatTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.3"
-                            android:text="@string/activity_setup_name"
-                            android:textSize="@dimen/text_medium"
-                            android:textColor="@color/colorPrimaryDark"
-                            android:layout_marginEnd="@dimen/horizontal"/>
-
-                        <androidx.appcompat.widget.AppCompatEditText android:id="@id/input_name"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.7"
-                            android:nextFocusRight="@+id/action_generate_random_name"
-                            android:nextFocusDown="@id/action_generate_random_name"
-                            android:nextFocusForward="@id/action_generate_random_name"
-                            android:textColor="@color/colorPrimary"
-                            android:textColorHint="@android:color/darker_gray"
-                            android:textSize="@dimen/text_medium"
-                            android:backgroundTint="@color/colorAccent"
-                            android:hint="@string/activity_setup_hint_name"/>
-
-                    </LinearLayout>
-
-                </RelativeLayout>
-                <RelativeLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical|end">
-                    <androidx.appcompat.widget.AppCompatButton android:id="@id/action_start"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:nextFocusLeft="@id/action_generate_random_name"
-                        android:nextFocusUp="@id/action_generate_random_name"
-                        android:nextFocusForward="@id/input_name"
-                        android:minWidth="0dp"
-                        android:minHeight="0dp"
-                        android:paddingLeft="@dimen/horizontal"
-                        android:paddingRight="@dimen/horizontal"
-                        android:paddingTop="@dimen/vertical"
-                        android:paddingBottom="@dimen/vertical"
-                        android:text="@string/action_start"
-                        android:background="@drawable/tv_bg_button"/>
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_toStartOf="@id/action_start"
-                        android:scaleType="fitStart"
-                        android:adjustViewBounds="true"
-                        android:layout_alignTop="@id/action_start"
-                        android:layout_alignBottom="@id/action_start"
-                        android:src="@drawable/powered_by_giphy"/>
-                </RelativeLayout>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
-
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

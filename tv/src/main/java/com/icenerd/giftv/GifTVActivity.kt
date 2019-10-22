@@ -56,17 +56,18 @@ class GifTVActivity : Activity() {
             field = value
         }
     private var nextPosition = 0
-
+    private val clientMessageHandler by lazy { ClientMessageHandler(this) }
     private val currentSSID: String?
         get() {
             var ssid: String? = null
             val connManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val networkInfo = connManager.activeNetworkInfo
-            if (networkInfo.isConnected && networkInfo.type == ConnectivityManager.TYPE_WIFI) {
+            if (networkInfo.isConnected) {
                 val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-                val connectionInfo = wifiManager.connectionInfo
-                if (connectionInfo != null && !connectionInfo.ssid.isEmpty()) {
-                    ssid = connectionInfo.ssid
+                wifiManager.connectionInfo?.let { connectionInfo ->
+                    if (connectionInfo.ssid.isNotEmpty()) {
+                        ssid = connectionInfo.ssid
+                    }
                 }
             }
             return ssid
@@ -109,15 +110,16 @@ class GifTVActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mobile_tv)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        gifImageView = findViewById(R.id.gif) as GifImageView
+        gifImageView = findViewById(R.id.gif)
     }
     override fun onStart() {
         super.onStart()
-        val ssid = currentSSID
-        if (ssid != null && !ssid.isEmpty()) {
-            (findViewById(R.id.text_ssid) as TextView).text = ssid
-        } else {
-            (findViewById(R.id.text_ssid) as TextView).setText(R.string.tv_ssid_not_found)
+        currentSSID.let {
+            if (it.isNullOrEmpty()) {
+                (findViewById<TextView>(R.id.text_ssid)).setText(R.string.tv_ssid_not_found)
+            } else {
+                (findViewById<TextView>(R.id.text_ssid)).text = it
+            }
         }
         localBroadcastManager = LocalBroadcastManager.getInstance(this)
         requestQueue = Volley.newRequestQueue(this)
@@ -132,20 +134,12 @@ class GifTVActivity : Activity() {
         })
         val nsdMan = getSystemService(Context.NSD_SERVICE) as NsdManager
         val nsName = intent.getStringExtra(Server.NAME)
-        var nsType: String? = intent.getStringExtra(Server.TYPE)
-        if (nsName == null || nsName.isEmpty()) {
+        val nsType = intent.getStringExtra(Server.TYPE) ?: getString(R.string.network_service_type)
+        if (nsName.isNullOrEmpty()) {
             finish()
         } else {
-            if (nsType == null || nsType.isEmpty()) {
-                nsType = getString(R.string.network_service_type)
-            }
-
-            networkServer = Server(
-                    nsdMan,
-                    nsName,
-                    nsType!!
-            )
-            networkServer?.handler = ClientMessageHandler(this)
+            networkServer = Server(nsdMan, nsName, nsType)
+            networkServer?.handler = clientMessageHandler
         }
 
         findViewById<TextView>(R.id.text_tv_name).text = nsName
@@ -197,12 +191,13 @@ class GifTVActivity : Activity() {
             if (BuildConfig.DEBUG) Log.d(TAG, listGIF.size.toString() + " Gifs found!")
             findViewById<View>(R.id.frame_gif).visibility = View.VISIBLE
             if (timer == null) {
-                timer = Timer()
-                timer!!.scheduleAtFixedRate(object : TimerTask() {
-                    override fun run() {
-                        runOnUiThread { gifNext() }
-                    }
-                }, 0, 3000)
+                timer = Timer().apply {
+                    scheduleAtFixedRate(object : TimerTask() {
+                        override fun run() {
+                            runOnUiThread { gifNext() }
+                        }
+                    }, 0, 3000)
+                }
             }
         }
     }
