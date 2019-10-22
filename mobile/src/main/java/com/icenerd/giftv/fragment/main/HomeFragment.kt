@@ -18,8 +18,9 @@ class HomeFragment : Fragment() {
         }
         return fragmentHome
     }
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater!!.inflate(R.menu.home, menu)
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.home, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 }
