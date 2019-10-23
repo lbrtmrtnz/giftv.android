@@ -51,8 +51,8 @@ class GifTVActivity : Activity() {
     private var listGIF: List<GifModel> = ArrayList()
     private var timer: Timer? = null
         set(value) {
-            value?.cancel()
-            value?.purge()
+            field?.cancel()
+            field?.purge()
             field = value
         }
     private var nextPosition = 0
@@ -184,8 +184,6 @@ class GifTVActivity : Activity() {
         if (listGIF.isNullOrEmpty()) {
             if (BuildConfig.DEBUG) Log.d(TAG, "No Gifs found!")
             findViewById<View>(R.id.frame_gif).visibility = View.INVISIBLE
-            timer?.cancel()
-            timer?.purge()
             timer = null
         } else {
             if (BuildConfig.DEBUG) Log.d(TAG, listGIF.size.toString() + " Gifs found!")
@@ -194,6 +192,7 @@ class GifTVActivity : Activity() {
                 timer = Timer().apply {
                     scheduleAtFixedRate(object : TimerTask() {
                         override fun run() {
+                            Log.d(TAG, "TIMER EVENT")
                             runOnUiThread { gifNext() }
                         }
                     }, 0, 3000)
